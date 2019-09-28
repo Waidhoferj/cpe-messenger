@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 58 (84663) - https://sketch.com -->
+    <title>send-icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="send-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="_ionicons_svg_md-paper-plane" transform="translate(3.000000, 3.000000)" fill="#DF8162" fill-rule="nonzero">
+            <path d="M0,23.0401442 L12.2901442,27.6502404 L13.8199519,43 L21.5,32.25 L32.25,43 L43,0 L0,23.0401442 Z M30.4824519,36.0641827 L21.9134615,27.4331731 L33.7901442,10.75 L15.05,24.99375 L7.94879808,22.4302885 L38.028125,6.28461538 L30.4824519,36.0641827 L30.4824519,36.0641827 Z" id="Shape"></path>
+        </g>
+    </g>
+</svg>

@@ -1,5 +1,5 @@
 <template>
-  <div class="announcer-component">
+  <div class="announcer-component" :class="{'anim-send': isSending}">
     <header>
       <h2 class="title">Announcement</h2>
       <h3 class="selected-group" @click="selectingGroup = !selectingGroup">To: {{selectedGroup}}</h3>
@@ -95,7 +95,8 @@ export default {
         date: "",
         time: ""
       },
-      charsPerMessage: 160
+      charsPerMessage: 160,
+      isSending: false
     };
   },
   computed: {
@@ -114,28 +115,36 @@ export default {
   },
   methods: {
     sendMessage() {
+      if (!this.message.length) return;
       let [month, day, year] = this.schedule.date.split("/");
       let [hour, minute] = this.schedule.time.split(":");
-      const timestamp = new Date(
-        year,
-        month - 1,
-        day,
-        hour,
-        minute,
-        0
-      ).getTime();
+      const timestamp = this.scheduled
+        ? new Date(year, month - 1, day, hour, minute, 0).getTime()
+        : Date.now();
       const message = {
         text: this.message,
         group: parseKeyFrom(this.selectedGroup),
         timestamp,
         sent: false
       };
+      this.animateSend();
       this.$store
         .dispatch("sendMessage", message)
         .then(() => console.log("sent message"));
     },
+    animateSend() {
+      let duration =
+        parseInt(
+          getComputedStyle(this.$el).getPropertyValue("--send-duration")
+        ) * 1000;
+      console.log({ duration });
+      this.isSending = true;
+      return new Promise(resolve => {
+        setTimeout(() => (this.message = ""), duration / 2);
+        setTimeout(() => resolve((this.isSending = false)), duration);
+      });
+    },
     selectGroup(event) {
-      console.log("selected group");
       this.selectedGroup = event.target.innerText;
       this.selectingGroup = false;
     },
@@ -153,6 +162,8 @@ export default {
 
 <style lang="scss">
 .announcer-component {
+  --send-duration: 2s;
+
   box-sizing: border-box;
   position: relative;
   display: flex;
@@ -164,6 +175,9 @@ export default {
   height: 100%;
   box-shadow: 0px 7px 38px rgba(0, 0, 0, 0.16);
 
+  &.anim-send {
+    animation: anim-send var(--send-duration) ease-in-out;
+  }
   .title {
     font-size: 40px;
     color: white;
@@ -311,5 +325,32 @@ export default {
 .downslide-enter,
 .downslide-leave-to {
   transform: translateY(100%);
+}
+
+@keyframes anim-send {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-100vh) scale(1.1);
+    opacity: 0;
+  }
+  51% {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+
+  71% {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 </style>

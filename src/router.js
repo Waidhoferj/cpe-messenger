@@ -20,6 +20,14 @@ export default new Router({
         import(
           /* webpackChunkName: "announcement" */ "./views/Announcement.vue"
         )
+    },
+    {
+      path: "/conversations",
+      name: "conversations",
+      component: () =>
+        import(
+          /* webpackChunkName: "conversations" */ "./views/Conversations.vue"
+        )
     }
   ]
 });

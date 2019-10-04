@@ -14,11 +14,11 @@
           <img src="./assets/announcement-icon.svg" alt="img" />
           <h3 v-show="menuOpen" class="menu-desc">Announcement</h3>
         </router-link>
-        <router-link tag="div" to="/record" class="option">
+        <router-link tag="div" to="/conversations" class="option">
           <img src="./assets/conversation-icon.svg" alt="img" />
           <h3 class="menu-desc" v-show="menuOpen">Conversations</h3>
         </router-link>
-        <router-link tag="div" to="/validate" class="option">
+        <router-link tag="div" to="/groups" class="option">
           <img src="./assets/groups-icon.svg" alt="img" />
           <h3 class="menu-desc" v-show="menuOpen">Groups</h3>
         </router-link>

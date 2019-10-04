@@ -2,39 +2,25 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 const axios = require("axios");
-const firebase = require("firebase");
+import firebase from "firebase/app";
+import "firebase/firestore";
+import "firebase/auth";
 import router from "./router";
 import { parseNameFrom } from "@/modules/groupParser";
+import firebaseConfig from "@/modules/fbConfig.js";
+import { attachListeners } from "@/modules/listeners";
 
-var firebaseConfig = {
-  apiKey: "AIzaSyAnaSoE2Rk5tI6BDWWjyoLtGvRg0wr3d1Y",
-  authDomain: "cpentrepreneurs-e2e22.firebaseapp.com",
-  databaseURL: "https://cpentrepreneurs-e2e22.firebaseio.com",
-  projectId: "cpentrepreneurs-e2e22",
-  storageBucket: "cpentrepreneurs-e2e22.appspot.com",
-  messagingSenderId: "262626193290",
-  appId: "1:262626193290:web:ff81c5eff6993b06"
-};
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
-// firebase.auth().onAuthStateChanged(function(user) {
-//   if (user) {
-//     console.log("listener passes user", user);
-//   } else {
-//     router.push("/");
-//   }
-// });
+Vue.use(Vuex);
 
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-Vue.use(Vuex);
-
 export default new Vuex.Store({
   state: {
     user: {},
-    groups: ["CPE Club", "Startup Marathon", "tours"]
+    groups: ["CPE Club", "Startup Marathon", "tours"],
+    conversations: []
   },
   mutations: {
     updateUser(state, user) {
@@ -42,6 +28,22 @@ export default new Vuex.Store({
     },
     updateGroups(state, groups) {
       state.groups = groups.map(parseNameFrom);
+    },
+    updateConversations(state, update) {
+      const matchingConversation = conversation =>
+        conversation.from === update.from;
+      console.log("update", update);
+      const itemToUpdate = state.conversations.find(matchingConversation);
+      if (!itemToUpdate) {
+        state.conversations.push(update);
+        return;
+      }
+      if (itemToUpdate.messages.length >= update.messages.length) return;
+      let newMessageIndex = update.messages.length - 1;
+      itemToUpdate.messages.push(update.messages[newMessageIndex]);
+    },
+    setConversations(state, conversations) {
+      state.conversations = conversations;
     }
   },
   actions: {
@@ -51,15 +53,34 @@ export default new Vuex.Store({
         user.email,
         user.password
       );
-      const [profile, groupsInfo] = await Promise.all([
+      attachListeners(db, auth);
+      const [profile, { groupsList }] = await Promise.all([
         dispatch("getData", `users/${userData.user.uid}`),
-        dispatch("getData", `subscribers/groupsInfo`)
+        dispatch("getData", `textGroups/GroupsInfo`)
       ]);
-      console.log("test:", profile, groupsInfo);
+      console.log("test:", profile, groupsList);
       profile ? commit("updateUser", profile) : console.error("no user found");
-      groupsInfo
-        ? commit("updateGroups", groupsInfo)
+      groupsList
+        ? commit("updateGroups", groupsList)
         : console.error("no groups found");
+    },
+
+    async sendResponse({ state }, { message, recipient }) {
+      console.log("message data", message, recipient);
+      let pointers = await db
+        .collection("conversations")
+        .where("from", "==", recipient)
+        .get();
+      let ids = [];
+      pointers.forEach(pointer => ids.push(pointer.id));
+      if (!ids.length)
+        return console.warn("couldn't locate conversation in server");
+      await db
+        .collection("conversations")
+        .doc(ids[0])
+        .update({
+          messages: firebase.firestore.FieldValue.arrayUnion(message)
+        });
     },
 
     async getData(_, path) {

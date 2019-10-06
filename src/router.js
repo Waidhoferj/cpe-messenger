@@ -28,6 +28,12 @@ export default new Router({
         import(
           /* webpackChunkName: "conversations" */ "./views/Conversations.vue"
         )
+    },
+    {
+      path: "/groups",
+      name: "groups",
+      component: () =>
+        import(/* webpackChunkName: "groups" */ "./views/Groups.vue")
     }
   ]
 });

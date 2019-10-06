@@ -1,8 +1,10 @@
+//TODO: add short words
 export function parseNameFrom(key) {
   let isUppercase = char => char.charCodeAt(0) > 64 && char.charCodeAt(0) < 90;
   let isCPE = (word, i) => word.slice(i, i + 3).toLowerCase() === "cpe";
+
   let str = "";
-  for (let i; i < key.length; i++) {
+  for (let i = 0; i < key.length; i++) {
     if (isCPE(key, i)) {
       str += " CPE";
       i += 2;
@@ -14,7 +16,19 @@ export function parseNameFrom(key) {
 }
 
 export function parseKeyFrom(name) {
-  let suffix = name.slice(1).replace(" ", "");
-  let startsWithCPE = name.toLowerCase().startsWith("cpe");
-  return startsWithCPE ? name[0] + suffix : name[0].toLowerCase() + suffix;
+  return name
+    .toLowerCase()
+    .split(" ")
+    .map((word, i) => (i === 0 ? word : word[0].toUpperCase() + word.slice(1)))
+    .join("");
+}
+
+export function parseCSV(csv) {
+  let isInt = /^\d+$/;
+  let isPhoneNumber = value =>
+    value[0] === "1" && value.length === 11 && isInt.test(value);
+  return csv
+    .replace(/"/g, "")
+    .split(/,|\n/g)
+    .filter(isPhoneNumber);
 }

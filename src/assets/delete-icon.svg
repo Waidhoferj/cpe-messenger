@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="25px" height="25px" viewBox="0 0 25 25" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 58 (84663) - https://sketch.com -->
+    <title>delete-icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="delete-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="_ionicons_svg_md-close" transform="translate(3.000000, 3.000000)" fill="#325C6F" fill-rule="nonzero">
+            <polygon id="Path" points="19 1.89987248 17.1001275 0 9.5 7.60012752 1.89987248 0 0 1.89987248 7.60012752 9.5 0 17.1001275 1.89987248 19 9.5 11.3998725 17.1001275 19 19 17.1001275 11.3998725 9.5"></polygon>
+        </g>
+    </g>
+</svg>

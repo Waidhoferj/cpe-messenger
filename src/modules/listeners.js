@@ -1,4 +1,5 @@
 import store from "@/store";
+import router from "@/router";
 export function attachListeners(db, auth) {
   //Track conversation updates
   db.collection("conversations")
@@ -10,11 +11,11 @@ export function attachListeners(db, auth) {
       });
     });
   // control auth flow
-  // firebase.auth().onAuthStateChanged(function(user) {
-  //   if (user) {
-  //     console.log("listener passes user", user);
-  //   } else {
-  //     router.push("/");
-  //   }
-  // });
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      console.log("listener passes user", user);
+    } else {
+      router.push("/");
+    }
+  });
 }

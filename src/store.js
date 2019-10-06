@@ -19,15 +19,15 @@ const auth = firebase.auth();
 export default new Vuex.Store({
   state: {
     user: {},
-    groups: ["CPE Club", "Startup Marathon", "tours"],
+    groupNames: ["CPE Club"],
     conversations: []
   },
   mutations: {
     updateUser(state, user) {
       state.user = user;
     },
-    updateGroups(state, groups) {
-      state.groups = groups.map(parseNameFrom);
+    updateGroupNames(state, groups) {
+      state.groupNames = groups.map(parseNameFrom);
     },
     updateConversations(state, update) {
       const matchingConversation = conversation =>
@@ -44,6 +44,12 @@ export default new Vuex.Store({
     },
     setConversations(state, conversations) {
       state.conversations = conversations;
+    },
+    logOut(state) {
+      state.user = {};
+      state.groupNames = ["CPE Club"];
+      state.conversations = [];
+      auth.logOut();
     }
   },
   actions: {
@@ -61,7 +67,7 @@ export default new Vuex.Store({
       console.log("test:", profile, groupsList);
       profile ? commit("updateUser", profile) : console.error("no user found");
       groupsList
-        ? commit("updateGroups", groupsList)
+        ? commit("updateGroupNames", groupsList)
         : console.error("no groups found");
     },
 
@@ -95,8 +101,26 @@ export default new Vuex.Store({
       return pointer.data();
     },
 
-    async sendMessage(_, message) {
-      await db.collection("announcements").add(message);
+    sendMessage(_, message) {
+      return db.collection("announcements").add(message);
+    },
+    async getGroupListings() {
+      let pointers = await db.collection("textGroups").get();
+      let groups = {};
+      console.log("pointers", pointers);
+      pointers.forEach(pointer =>
+        console.log("pointer:data: ", pointer.data())
+      );
+      pointers.forEach(
+        pointer => (groups[pointer.id] = pointer.data().phoneNumbers)
+      );
+      return groups;
+    },
+    createTextGroup(context, { name, data }) {
+      return db
+        .collection("textGroups")
+        .doc(name)
+        .set({ phoneNumbers: data });
     }
   }
 });

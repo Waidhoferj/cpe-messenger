@@ -106,8 +106,7 @@ export default {
       );
     },
     groups() {
-      return ["Startup Marathon", "CPE Club"];
-      //this.$store.state.groups;
+      return this.$store.state.groupNames;
     },
     scheduled() {
       return this.schedule.date && this.schedule.time;
@@ -333,19 +332,20 @@ export default {
     opacity: 1;
   }
   25% {
+    transform: translateY(0) scale(0.7);
     opacity: 1;
   }
   50% {
-    transform: translateY(-100vh) scale(1.1);
+    transform: translateY(-100vh) scale(0.7);
     opacity: 0;
   }
   51% {
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(0) scale(0.95);
     opacity: 0;
   }
 
   71% {
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(0) scale(0.95);
     opacity: 0;
   }
   100% {

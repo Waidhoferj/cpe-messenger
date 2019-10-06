@@ -22,7 +22,7 @@
           <img src="./assets/groups-icon.svg" alt="img" />
           <h3 class="menu-desc" v-show="menuOpen">Groups</h3>
         </router-link>
-        <router-link tag="div" to="/" class="option logout" @click="$store.commit('clearData')">
+        <router-link tag="div" to="/" class="option logout" @click="$store.commit('logOut')">
           <img src="@/assets/back-icon.svg" alt="Log out" />
           <h3 class="menu-desc" v-show="menuOpen" style="white-space: nowrap">Log out</h3>
         </router-link>

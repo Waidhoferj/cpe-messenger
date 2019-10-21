@@ -10,6 +10,15 @@ export function attachListeners(db, auth) {
         store.commit("updateConversations", change.doc.data());
       });
     });
+
+  db.collection("functionErrors")
+    .where("timestamp", ">", 0)
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach(change => {
+        console.log("saw a change: ", change.type, change.doc.data());
+        store.commit("updateErrors", change.doc.data());
+      });
+    });
   // control auth flow
   auth.onAuthStateChanged(function(user) {
     if (user) {

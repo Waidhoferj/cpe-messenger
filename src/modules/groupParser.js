@@ -32,3 +32,15 @@ export function parseCSV(csv) {
     .split(/,|\n/g)
     .filter(isPhoneNumber);
 }
+
+export function parsePhoneNumber(number) {
+  let numStr = String(number);
+  let hasCountryCode = numStr.length === 10;
+  if (hasCountryCode)
+    return `${numStr[0]}-${numStr.slice(1, 3)}-${numStr.slice(
+      4,
+      6
+    )}-${numStr.slice(7, 10)}`;
+  else
+    return `${numStr.slice(0, 2)}-${numStr.slice(3, 5)}-${numStr.slice(6, 9)}`;
+}

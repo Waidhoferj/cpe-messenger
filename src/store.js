@@ -20,7 +20,8 @@ export default new Vuex.Store({
   state: {
     user: {},
     groupNames: ["CPE Club"],
-    conversations: []
+    conversations: [],
+    errors: []
   },
   mutations: {
     updateUser(state, user) {
@@ -41,6 +42,11 @@ export default new Vuex.Store({
       if (itemToUpdate.messages.length >= update.messages.length) return;
       let newMessageIndex = update.messages.length - 1;
       itemToUpdate.messages.push(update.messages[newMessageIndex]);
+    },
+    updateErrors({ errors }, error) {
+      let date = new Date(error.timestamp).toLocaleDateString();
+      if (date in errors) errors[date].push(error);
+      else errors[date] = [error];
     },
     setConversations(state, conversations) {
       state.conversations = conversations;
@@ -86,6 +92,23 @@ export default new Vuex.Store({
         .doc(ids[0])
         .update({
           messages: firebase.firestore.FieldValue.arrayUnion(message)
+        });
+    },
+
+    async updateNickname(context, { nickname, from: recipient }) {
+      let pointers = await db
+        .collection("conversations")
+        .where("from", "==", recipient)
+        .get();
+      let ids = [];
+      pointers.forEach(pointer => ids.push(pointer.id));
+      if (!ids.length)
+        return console.warn("couldn't locate conversation in server");
+      await db
+        .collection("conversations")
+        .doc(ids[0])
+        .update({
+          nickname
         });
     },
 

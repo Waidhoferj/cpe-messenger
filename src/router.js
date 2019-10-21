@@ -34,6 +34,12 @@ export default new Router({
       name: "groups",
       component: () =>
         import(/* webpackChunkName: "groups" */ "./views/Groups.vue")
+    },
+    {
+      path: "/errors",
+      name: "errors",
+      component: () =>
+        import(/* webpackChunkName: "errors" */ "./views/Errors.vue")
     }
   ]
 });

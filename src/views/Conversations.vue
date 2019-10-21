@@ -9,7 +9,10 @@
             :class="{selected: conversation.from === selectedConversation.from}"
             @click="selectedConversation = conversation"
             :key="conversation.from"
-          >{{conversation.from}}</li>
+            :contenteditable="conversation.from === selectedConversation.from"
+            @blur="updateNickname($event, conversation)"
+            @keyup.enter="enterNickname"
+          >{{conversation.nickname || conversation.from}}</li>
         </ul>
       </div>
       <div class="conversation" ref="conversation">
@@ -44,6 +47,7 @@
 
 <script>
 import Message from "@/components/Message";
+import { parsePhoneNumber } from "@/modules/groupParser";
 export default {
   components: {
     Message
@@ -87,9 +91,33 @@ export default {
       };
       isSmooth ? (options.behavior = "smooth") : null;
       conversation.scroll(options);
+    },
+    /**
+     * @param event dom event
+     * @param {number} index element index in the conversation array
+     */
+    updateNickname(event, conversation) {
+      console.log(conversation);
+      let { innerText } = event.target;
+      let nicknameUnchanged =
+        conversation.from == innerText ||
+        (conversation.nickname && conversation.nickname === innerText);
+
+      if (nicknameUnchanged) return;
+      conversation.nickname = innerText;
+      this.$store.dispatch("updateNickname", conversation);
+    },
+    /**
+     * Handles closing the nickname field when enter is pressed
+     */
+    enterNickname(e) {
+      e.target.innerText = e.target.innerText.replace("\n", "");
+      e.target.blur();
     }
   },
-
+  filters: {
+    parsePhoneNumber
+  },
   mounted() {
     if (this.conversations.length)
       this.selectedConversation = this.conversations[0];

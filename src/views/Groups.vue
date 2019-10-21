@@ -19,7 +19,7 @@
       <img src="@/assets/search-icon.svg" class="search-icon" />
       <input type="text" class="search-input" v-model="searchQuery" />
     </div>
-    <div class="group-members">
+    <transition-group name="pop" mode="out-in" class="group-members" tag="div">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
           src="@/assets/delete-icon.svg"
@@ -29,7 +29,7 @@
         />
         <div class="member-tag">{{member}}</div>
       </div>
-    </div>
+    </transition-group>
     <transition name="fade">
       <upload-popup v-if="showUploadPopup" :file="uploadFile" @close="closePopup"></upload-popup>
     </transition>
@@ -185,5 +185,24 @@ export default {
       }
     }
   }
+}
+
+.pop-enter-active,
+.pop-leave-active {
+  transition: all 0.7s;
+}
+
+.pop-enter,
+.pop-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.pop-leave-active {
+  position: absolute;
+}
+
+.pop-move {
+  transition: transform 0.5s;
 }
 </style>

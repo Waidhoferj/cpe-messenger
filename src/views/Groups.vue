@@ -128,6 +128,7 @@ export default {
 .groups-page {
   .groups-selector {
     display: flex;
+    justify-content: center;
     overflow-x: scroll;
     flex-wrap: nowrap;
     margin: auto;

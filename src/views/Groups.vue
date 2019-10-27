@@ -1,9 +1,9 @@
 <template>
   <div
     class="page groups-page"
-    @dragenter="showUploadPopup = true"
+    @dragenter="onDragEnter"
     @dragover.prevent
-    @dragleave="showUploadPopup = false"
+    @dragleave="onDragLeave"
     @drop.prevent.stop="getDroppedFiles"
   >
     <div class="groups-selector">
@@ -19,7 +19,11 @@
       <img src="@/assets/search-icon.svg" class="search-icon" />
       <input type="text" class="search-input" v-model="searchQuery" />
     </div>
-    <transition-group name="pop" mode="out-in" class="group-members" tag="div">
+    <div class="group-options">
+      <h3 class="option add-group" @click="showUploadPopup = true">Add Group</h3>
+      <member-adder @numberInput="selectedGroup.push($event)"></member-adder>
+    </div>
+    <transition-group name="member" mode="out-in" class="group-members" tag="div">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
           src="@/assets/delete-icon.svg"
@@ -27,22 +31,29 @@
           class="remove-icon"
           @click="removeMember(member)"
         />
-        <div class="member-tag">{{member}}</div>
+        <div class="member-tag">{{member | formatPhoneNumber}}</div>
       </div>
     </transition-group>
     <transition name="fade">
-      <upload-popup v-if="showUploadPopup" :file="uploadFile" @close="closePopup"></upload-popup>
+      <upload-popup
+        v-if="showUploadPopup"
+        :dragging="draggingInFile"
+        :file="uploadFile"
+        @close="closePopup"
+      ></upload-popup>
     </transition>
   </div>
 </template>
 
 <script>
-import { parseNameFrom } from "@/modules/groupParser";
+import { parseNameFrom, formatPhoneNumber } from "@/modules/parser";
 import UploadPopup from "@/components/UploadPopup";
+import MemberAdder from "@/components/MemberAdder";
 export default {
   name: "groups",
   components: {
-    UploadPopup
+    UploadPopup,
+    MemberAdder
   },
   data() {
     return {
@@ -51,6 +62,7 @@ export default {
       selectedIndex: 0,
       searchQuery: "",
       showUploadPopup: false,
+      draggingInFile: false,
       uploadFile: null
     };
   },
@@ -76,6 +88,7 @@ export default {
     },
     getDroppedFiles(event) {
       event.preventDefault();
+      this.draggingInFile = false;
       let fileTest = event.dataTransfer.items[0].getAsFile();
       console.log("files: ", fileTest);
       const { files } = event.dataTransfer;
@@ -85,10 +98,19 @@ export default {
     closePopup() {
       this.uploadFile = null;
       this.showUploadPopup = false;
+    },
+
+    onDragEnter() {
+      this.draggingInFile = this.showUploadPopup = true;
+    },
+
+    onDragLeave() {
+      this.draggingInFile = this.showUploadPopup = false;
     }
   },
   filters: {
-    parseNameFrom
+    parseNameFrom,
+    formatPhoneNumber
   },
   mounted() {
     this.$store
@@ -146,6 +168,27 @@ export default {
       border-bottom: 2px solid var(--dark);
     }
   }
+  .group-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+
+    .option {
+      margin: 0 10px;
+      padding: 15px;
+      border-radius: 20px;
+      background: var(--dark);
+      cursor: pointer;
+      color: white;
+    }
+    .add-member {
+      background: var(--accent);
+      &.shake {
+        animation: shake 1s;
+      }
+    }
+  }
 
   .group-members {
     margin: auto;
@@ -158,9 +201,34 @@ export default {
     justify-content: center;
 
     .member {
+      z-index: 1;
       display: block;
       position: relative;
       margin: 22px;
+
+      &-enter-active {
+        transition: all 0.7s;
+      }
+      &-leave-active {
+        position: absolute;
+        transition: all 0.7s;
+        z-index: 0;
+      }
+
+      &-enter,
+      &-leave-to {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      &-move {
+        transition: all 0.7s;
+      }
+
+      &:hover > .member-tag {
+        transform: translateX(40px);
+      }
+
       .remove-icon {
         cursor: pointer;
         position: absolute;
@@ -170,9 +238,6 @@ export default {
         z-index: 0;
       }
 
-      &:hover > .member-tag {
-        transform: translateX(40px);
-      }
       .member-tag {
         position: relative;
         z-index: 1;
@@ -185,24 +250,5 @@ export default {
       }
     }
   }
-}
-
-.pop-enter-active,
-.pop-leave-active {
-  transition: all 0.7s;
-}
-
-.pop-enter,
-.pop-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-.pop-leave-active {
-  position: absolute;
-}
-
-.pop-move {
-  transition: transform 0.5s;
 }
 </style>

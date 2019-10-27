@@ -38,7 +38,7 @@
                 </g>
               </g>
             </svg>
-            <img src="@/assets/send-icon.svg" alt="Send" @click="sendMessage" />
+            <img src="@/assets/send-icon.svg" alt="Send" @click="sendMessage" :disabled="isSending" />
             <div class="char-count">
               <h4>{{charactersRemaining}}</h4>
               <p>left</p>
@@ -80,7 +80,7 @@
 
 <script>
 import Calendar from "@/components/Calendar";
-import { parseKeyFrom } from "@/modules/groupParser";
+import { parseKeyFrom } from "@/modules/parser";
 export default {
   components: {
     Calendar

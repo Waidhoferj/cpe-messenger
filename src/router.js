@@ -45,7 +45,7 @@ let router = new Router({
   ]
 });
 //AUTH
-// router.beforeEach(checkAuthentication);
+router.beforeEach(checkAuthentication);
 
 function checkAuthentication(to, from, next) {
   console.log("store user", store.state.user);

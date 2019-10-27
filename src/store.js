@@ -16,7 +16,7 @@ Vue.use(Vuex);
 const db = firebase.firestore();
 const auth = firebase.auth();
 //AUTH
-// trackAuthState(auth);
+trackAuthState(auth);
 
 export default new Vuex.Store({
   state: {

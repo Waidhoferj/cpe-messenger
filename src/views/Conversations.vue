@@ -12,11 +12,11 @@
             :contenteditable="conversation.from === selectedConversation.from"
             @blur="updateNickname($event, conversation)"
             @keyup.enter="enterNickname"
-          >{{conversation.nickname || conversation.from}}</li>
+          >{{conversation.nickname || formatPhoneNumber(conversation.from)}}</li>
         </ul>
       </div>
       <div class="conversation" ref="conversation">
-        <transition-group name="anim-message">
+        <transition-group name="message">
           <message
             v-for="message in selectedConversation.messages"
             :key="message.timestamp"
@@ -47,7 +47,7 @@
 
 <script>
 import Message from "@/components/Message";
-import { parsePhoneNumber } from "@/modules/groupParser";
+import { formatPhoneNumber } from "@/modules/parser";
 export default {
   components: {
     Message
@@ -69,6 +69,7 @@ export default {
     }
   },
   methods: {
+    formatPhoneNumber,
     sendMessage() {
       const message = {
         sender: "messenger",
@@ -114,9 +115,6 @@ export default {
       e.target.innerText = e.target.innerText.replace("\n", "");
       e.target.blur();
     }
-  },
-  filters: {
-    parsePhoneNumber
   },
   mounted() {
     if (this.conversations.length)
@@ -168,6 +166,30 @@ export default {
       }
     }
 
+    .message {
+      z-index: 1;
+
+      &-enter {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      &-leave-to {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      &-enter-active,
+      &-leave-active {
+        transition: all 0.7s;
+      }
+
+      &-leave-active {
+        position: absolute;
+        z-index: 0;
+      }
+    }
+
     .response-bar {
       width: 100%;
       height: 100%;
@@ -210,25 +232,6 @@ export default {
     width: 40px;
     height: 40px;
     background: red;
-  }
-
-  .anim-message-enter {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-
-  .anim-message-leave-to {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-
-  .anim-message-enter-active,
-  .anim-message-leave-active {
-    transition: transform 0.7s, opacity 0.5s;
-  }
-
-  .anim-message-leave-active {
-    position: absolute;
   }
 }
 </style>

@@ -15,12 +15,6 @@ let router = new Router({
       component: Login
     },
     {
-      path: "/signUp",
-      name: "signUp",
-      component: () =>
-        import(/* webpackChunkName: "signUp" */ "./views/SignUp.vue")
-    },
-    {
       path: "/announcement",
       name: "announcement",
       component: () =>

@@ -17,8 +17,8 @@
             <member-adder @numberInput="addNumber"></member-adder>
           </div>
           <div class="actions">
-            <img src="@/assets/back-icon.svg" alt="back" @click="$emit('close')" />
-            <img src="@/assets/confirm-icon.svg" alt="confirm" @click="addGroup" />
+            <img src="@/assets/dark-back-icon.svg" alt="back" @click="$emit('close')" />
+            <img src="@/assets/dark-confirm-icon.svg" alt="confirm" @click="addGroup" />
           </div>
         </form>
       </transition>

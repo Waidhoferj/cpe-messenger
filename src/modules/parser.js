@@ -33,13 +33,14 @@ export function parseCSV(csv) {
       digits.length < 10 || (digits.length === 11 && digits[0] !== "1");
     if (notValidNumber) return numbers;
     if (digits.length === 10) digits = "1" + digits;
-    numbers.push(digits);
+    numbers.add(digits);
     return numbers;
   };
-  return csv
+  let numberSet = csv
     .replace(quotes, "")
     .split(spacers)
-    .reduce(toPhoneNumbers, []);
+    .reduce(toPhoneNumbers, new Set());
+  return Array.from(numberSet);
 }
 
 export function formatPhoneNumber(number) {

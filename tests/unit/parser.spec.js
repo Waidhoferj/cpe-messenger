@@ -1,4 +1,4 @@
-import { parseNameFrom, parseKeyFrom } from "@/modules/groupParser";
+import { parseNameFrom, parseKeyFrom } from "@/modules/parser";
 //TODO: This function should probably lowercase values like the, to, and, of, etc. in title and capitalize them in camel;
 describe("Parse friendly name from group key", () => {
   it("returns something : D ", () => {

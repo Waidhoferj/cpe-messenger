@@ -6,26 +6,28 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
 import router from "./router";
-import { parseNameFrom } from "@/modules/groupParser";
+import { parseNameFrom } from "@/modules/parser";
 import firebaseConfig from "@/modules/fbConfig.js";
-import { attachListeners } from "@/modules/listeners";
+import { attachListeners, trackAuthState } from "@/modules/listeners";
 
 firebase.initializeApp(firebaseConfig);
 Vue.use(Vuex);
 
 const db = firebase.firestore();
 const auth = firebase.auth();
+//AUTH
+// trackAuthState(auth);
 
 export default new Vuex.Store({
   state: {
-    user: {},
+    user: null,
     groupNames: ["CPE Club"],
     conversations: [],
     errors: []
   },
   mutations: {
-    updateUser(state, user) {
-      state.user = user;
+    setUser(state, user) {
+      state.user = user.uid;
     },
     updateGroupNames(state, groups) {
       state.groupNames = groups.map(parseNameFrom);
@@ -52,9 +54,10 @@ export default new Vuex.Store({
       state.conversations = conversations;
     },
     logOut(state) {
-      state.user = {};
+      state.user = null;
       state.groupNames = ["CPE Club"];
       state.conversations = [];
+      state.errors = [];
       auth.logOut();
     }
   },
@@ -66,12 +69,7 @@ export default new Vuex.Store({
         user.password
       );
       attachListeners(db, auth);
-      const [profile, { groupsList }] = await Promise.all([
-        dispatch("getData", `users/${userData.user.uid}`),
-        dispatch("getData", `textGroups/GroupsInfo`)
-      ]);
-      console.log("test:", profile, groupsList);
-      profile ? commit("updateUser", profile) : console.error("no user found");
+      const { groupsList } = await dispatch("getData", `textGroups/GroupsInfo`);
       groupsList
         ? commit("updateGroupNames", groupsList)
         : console.error("no groups found");
@@ -134,9 +132,10 @@ export default new Vuex.Store({
       pointers.forEach(pointer =>
         console.log("pointer:data: ", pointer.data())
       );
-      pointers.forEach(
-        pointer => (groups[pointer.id] = pointer.data().phoneNumbers)
-      );
+      pointers.forEach(pointer => {
+        if (pointer.id !== "GroupsInfo")
+          groups[pointer.id] = pointer.data().phoneNumbers;
+      });
       return groups;
     },
     createTextGroup(context, { name, data }) {
@@ -144,6 +143,13 @@ export default new Vuex.Store({
         .collection("textGroups")
         .doc(name)
         .set({ phoneNumbers: data });
+    },
+    signUpUser(context, userInfo) {
+      console.log({ userInfo });
+      return axios.post(
+        "https://us-central1-cpentrepreneurs-e2e22.cloudfunctions.net/signUpWithCode",
+        userInfo
+      );
     }
   }
 });

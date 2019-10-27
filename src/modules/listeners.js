@@ -1,6 +1,6 @@
 import store from "@/store";
 import router from "@/router";
-export function attachListeners(db, auth) {
+export function attachListeners(db) {
   //Track conversation updates
   db.collection("conversations")
     .where("unread", "==", true)
@@ -19,10 +19,13 @@ export function attachListeners(db, auth) {
         store.commit("updateErrors", change.doc.data());
       });
     });
+}
+
+export function trackAuthState(auth) {
   // control auth flow
   auth.onAuthStateChanged(function(user) {
     if (user) {
-      console.log("listener passes user", user);
+      store.commit("setUser", user);
     } else {
       router.push("/");
     }

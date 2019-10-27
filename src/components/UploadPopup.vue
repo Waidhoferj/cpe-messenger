@@ -13,12 +13,12 @@
               :key="number"
             >{{number | formatPhoneNumber}}</li>
           </ul>
-          <div>
-            <member-adder @numberInput="addNumber"></member-adder>
-          </div>
           <div class="actions">
-            <img src="@/assets/dark-back-icon.svg" alt="back" @click="$emit('close')" />
-            <img src="@/assets/dark-confirm-icon.svg" alt="confirm" @click="addGroup" />
+            <member-adder @numberInput="addNumber"></member-adder>
+            <div class="bar">
+              <img src="@/assets/dark-back-icon.svg" alt="back" @click="$emit('close')" />
+              <img src="@/assets/dark-confirm-icon.svg" alt="confirm" @click="addGroup" />
+            </div>
           </div>
         </form>
       </transition>
@@ -156,13 +156,14 @@ export default {
       position: absolute;
       bottom: 0;
       width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 20px 0;
-
-      img {
-        cursor: pointer;
-        margin: 0 10px;
+      .bar {
+        display: flex;
+        justify-content: center;
+        padding: 20px 0;
+        img {
+          cursor: pointer;
+          margin: 0 10px;
+        }
       }
     }
   }

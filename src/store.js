@@ -35,7 +35,6 @@ export default new Vuex.Store({
     updateConversations(state, update) {
       const matchingConversation = conversation =>
         conversation.from === update.from;
-      console.log("update", update);
       const itemToUpdate = state.conversations.find(matchingConversation);
       if (!itemToUpdate) {
         state.conversations.push(update);
@@ -63,7 +62,6 @@ export default new Vuex.Store({
   },
   actions: {
     async logIn({ dispatch, commit }, user) {
-      console.log("user", user);
       const userData = await auth.signInWithEmailAndPassword(
         user.email,
         user.password
@@ -76,7 +74,6 @@ export default new Vuex.Store({
     },
 
     async sendResponse({ state }, { message, recipient }) {
-      console.log("message data", message, recipient);
       let pointers = await db
         .collection("conversations")
         .where("from", "==", recipient)
@@ -111,7 +108,6 @@ export default new Vuex.Store({
     },
 
     async getData(_, path) {
-      console.log({ path });
       const [group, item] = path.split("/");
       let pointer = await db
         .collection(group)
@@ -128,10 +124,6 @@ export default new Vuex.Store({
     async getGroupListings() {
       let pointers = await db.collection("textGroups").get();
       let groups = {};
-      console.log("pointers", pointers);
-      pointers.forEach(pointer =>
-        console.log("pointer:data: ", pointer.data())
-      );
       pointers.forEach(pointer => {
         if (pointer.id !== "GroupsInfo")
           groups[pointer.id] = pointer.data().phoneNumbers;
@@ -145,7 +137,6 @@ export default new Vuex.Store({
         .set({ phoneNumbers: data });
     },
     signUpUser(context, userInfo) {
-      console.log({ userInfo });
       return axios.post(
         "https://us-central1-cpentrepreneurs-e2e22.cloudfunctions.net/signUpWithCode",
         userInfo

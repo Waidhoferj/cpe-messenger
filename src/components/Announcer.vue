@@ -127,16 +127,13 @@ export default {
         sent: false
       };
       this.animateSend();
-      this.$store
-        .dispatch("sendMessage", message)
-        .then(() => console.log("sent message"));
+      this.$store.dispatch("sendMessage", message);
     },
     animateSend() {
       let duration =
         parseInt(
           getComputedStyle(this.$el).getPropertyValue("--send-duration")
         ) * 1000;
-      console.log({ duration });
       this.isSending = true;
       return new Promise(resolve => {
         setTimeout(() => (this.message = ""), duration / 2);

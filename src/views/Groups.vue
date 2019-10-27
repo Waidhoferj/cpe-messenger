@@ -90,10 +90,8 @@ export default {
       event.preventDefault();
       this.draggingInFile = false;
       let fileTest = event.dataTransfer.items[0].getAsFile();
-      console.log("files: ", fileTest);
       const { files } = event.dataTransfer;
       this.uploadFile = files[0];
-      console.log(this.uploadFile);
     },
     closePopup() {
       this.uploadFile = null;

@@ -34,7 +34,6 @@ export default {
   methods: {
     inspectError(error) {
       console.log(this.errors);
-      console.log("Error Object:", error.metadata);
     }
   }
 };

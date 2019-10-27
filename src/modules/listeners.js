@@ -6,7 +6,6 @@ export function attachListeners(db) {
     .where("unread", "==", true)
     .onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
-        console.log("saw a change: ", change.type, change.doc.data());
         store.commit("updateConversations", change.doc.data());
       });
     });
@@ -15,7 +14,6 @@ export function attachListeners(db) {
     .where("timestamp", ">", 0)
     .onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
-        console.log("saw a change: ", change.type, change.doc.data());
         store.commit("updateErrors", change.doc.data());
       });
     });

@@ -98,7 +98,6 @@ export default {
      * @param {number} index element index in the conversation array
      */
     updateNickname(event, conversation) {
-      console.log(conversation);
       let { innerText } = event.target;
       let nicknameUnchanged =
         conversation.from == innerText ||

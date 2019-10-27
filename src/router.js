@@ -48,7 +48,6 @@ let router = new Router({
 router.beforeEach(checkAuthentication);
 
 function checkAuthentication(to, from, next) {
-  console.log("store user", store.state.user);
   let unverified = store.state.user === null;
   if (unverified && to.name !== "login" && to.name !== "signUp") next("/");
   else next();

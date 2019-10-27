@@ -48,7 +48,6 @@ export default {
         reader.onload = () => {
           reader.onload = null;
           let numbers = parseCSV(reader.result);
-          console.log({ numbers });
           resolve(numbers);
         };
         reader.readAsText(this.file);

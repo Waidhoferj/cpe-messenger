@@ -4,20 +4,22 @@
       <transition name="fade">
         <img src="@/assets/file-icon.svg" class="file-icon" v-if="dragging" />
         <form v-else class="validation">
-          <h3 class="title">New Group</h3>
-          <input type="text" v-model="groupName" placeholder="Group Name" />
-          <ul class="number-list">
-            <li
-              class="number"
-              v-for="number in phoneNumbers"
-              :key="number"
-            >{{number | formatPhoneNumber}}</li>
-          </ul>
-          <div class="actions">
-            <member-adder @numberInput="addNumber"></member-adder>
-            <div class="bar">
-              <img src="@/assets/dark-back-icon.svg" alt="back" @click="$emit('close')" />
-              <img src="@/assets/dark-confirm-icon.svg" alt="confirm" @click="addGroup" />
+          <input class="group-name" type="text" v-model="groupName" placeholder="Group Name" />
+          <h4 class="count">{{memberCount}}</h4>
+          <div class="spacer">
+            <ul class="number-list">
+              <li
+                class="number"
+                v-for="number in phoneNumbers"
+                :key="number"
+              >{{number | formatPhoneNumber}}</li>
+            </ul>
+            <div class="actions">
+              <member-adder @numberInput="addNumber"></member-adder>
+              <div class="bar">
+                <img src="@/assets/dark-back-icon.svg" alt="back" @click="$emit('close')" />
+                <img src="@/assets/dark-confirm-icon.svg" alt="confirm" @click="addGroup" />
+              </div>
             </div>
           </div>
         </form>
@@ -39,6 +41,18 @@ export default {
       phoneNumbers: [],
       groupName: ""
     };
+  },
+  computed: {
+    memberCount() {
+      let len = this.phoneNumbers.length;
+      if (len > 1) {
+        return `${len} members`;
+      } else if (len === 1) {
+        return `${len} member`;
+      } else {
+        return "Add members below";
+      }
+    }
   },
   watch: {
     file: function() {
@@ -72,7 +86,8 @@ export default {
     },
     async addGroup() {
       let { state, commit, dispatch } = this.$store;
-
+      if (!this.phoneNumbers.length || !this.groupName)
+        return alert("Please fill out group name and add members.");
       await dispatch("createTextGroup", {
         name: parseKeyFrom(this.groupName),
         data: this.phoneNumbers
@@ -121,7 +136,11 @@ export default {
   }
 
   .validation {
-    .title {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    .group-name {
+      margin-top: 25px;
       font-size: 35px;
     }
 
@@ -136,13 +155,18 @@ export default {
       text-align: center;
     }
 
+    .spacer {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+    }
+
     .number-list {
       width: 90%;
-      height: 40%;
-      margin: auto;
+      height: 100%;
       overflow-y: scroll;
       padding: 0;
-      margin: 15px 0;
+      margin: 15px auto;
 
       .number {
         display: inline-block;
@@ -153,8 +177,6 @@ export default {
       }
     }
     .actions {
-      position: absolute;
-      bottom: 0;
       width: 100%;
       .bar {
         display: flex;

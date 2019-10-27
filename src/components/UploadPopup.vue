@@ -1,14 +1,21 @@
 <template>
   <div class="upload-component">
-    <div class="popup" :class="{validating: file}">
+    <div class="popup" :class="{dragging: dragging}">
       <transition name="fade">
-        <img src="@/assets/file-icon.svg" class="file-icon" v-if="!file" />
+        <img src="@/assets/file-icon.svg" class="file-icon" v-if="dragging" />
         <form v-else class="validation">
-          <h3>Upload</h3>
+          <h3 class="title">New Group</h3>
           <input type="text" v-model="groupName" placeholder="Group Name" />
           <ul class="number-list">
-            <li class="number" v-for="number in phoneNumbers" :key="number">{{number}}</li>
+            <li
+              class="number"
+              v-for="number in phoneNumbers"
+              :key="number"
+            >{{number | formatPhoneNumber}}</li>
           </ul>
+          <div>
+            <member-adder @numberInput="addNumber"></member-adder>
+          </div>
           <div class="actions">
             <img src="@/assets/back-icon.svg" alt="back" @click="$emit('close')" />
             <img src="@/assets/confirm-icon.svg" alt="confirm" @click="addGroup" />
@@ -20,9 +27,13 @@
 </template>
 
 <script>
-import { parseCSV, parseKeyFrom } from "@/modules/groupParser";
+import { parseCSV, parseKeyFrom, formatPhoneNumber } from "@/modules/parser";
+import MemberAdder from "@/components/MemberAdder";
 export default {
-  props: ["file"],
+  props: ["file", "dragging"],
+  components: {
+    MemberAdder
+  },
   data() {
     return {
       phoneNumbers: [],
@@ -56,6 +67,10 @@ export default {
     close() {
       this.$emit("close");
     },
+    addNumber(number) {
+      if (this.phoneNumbers.includes(number)) return;
+      this.phoneNumbers.push(number);
+    },
     async addGroup() {
       let { state, commit, dispatch } = this.$store;
 
@@ -70,28 +85,33 @@ export default {
       commit("updateGroupNames", [...state.groupNames, this.groupName]);
       this.$emit("close");
     }
+  },
+  filters: {
+    formatPhoneNumber
   }
 };
 </script>
 
 <style lang="scss">
 .popup {
-  z-index: 1;
+  z-index: 2;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.7);
   width: 40vw;
   height: 40vw;
-  border-radius: 50%;
-  background: var(--dark);
-  pointer-events: none;
-  transition: border-radius 1s, transform 1s;
+  background: whitesmoke;
+  border-radius: 15px;
+  pointer-events: all;
+  transform: scale(1) translate(-50%, -50%);
+  box-shadow: 0 0 31px 3px rgba(0, 0, 0, 0.123);
+  transition: all 1s;
 
-  &.validating {
-    border-radius: 15px;
-    pointer-events: all;
-    transform: scale(1) translate(-50%, -50%);
+  &.dragging {
+    background: var(--dark);
+    pointer-events: none;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
   }
 
   .file-icon {
@@ -102,23 +122,19 @@ export default {
   }
 
   .validation {
-    h3 {
+    .title {
       font-size: 35px;
-      color: white;
     }
 
     input {
+      font-family: inherit;
+      color: var(--dark);
       background: transparent;
       border: none;
       border-bottom: var(--dark);
-      color: white;
       font-size: 25px;
       margin: auto;
       text-align: center;
-
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.514);
-      }
     }
 
     .number-list {
@@ -127,18 +143,19 @@ export default {
       margin: auto;
       overflow-y: scroll;
       padding: 0;
-      margin-top: 10px;
+      margin: 15px 0;
 
       .number {
         display: inline-block;
-        color: white;
-        border: 1px solid white;
+        border: 1px solid var(--dark);
         padding: 7px;
         border-radius: 5px;
         margin: 10px;
       }
     }
     .actions {
+      position: absolute;
+      bottom: 0;
       width: 100%;
       display: flex;
       justify-content: center;

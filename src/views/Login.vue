@@ -1,5 +1,6 @@
 <template>
   <div class="login-page">
+    <div v-if="loading" class="loader"></div>
     <div class="login-container">
       <div class="icon" ref="icon">
         <img src="@/assets/letter.svg" alt />
@@ -7,10 +8,13 @@
       <div class="divider"></div>
       <h1 class="title">CPE Messenger</h1>
       <h3>{{signUpOpen ? 'Sign up' : "Login"}}</h3>
-      <input v-if="signUpOpen" type="text" placeholder="Name" v-model="name" />
-      <input type="text" class="username" v-model="username" placeholder="Email" />
-      <input type="password" class="password" v-model="password" placeholder="Password" />
-      <input v-if="signUpOpen" type="password" v-model="code" placeholder="Entry Code" />
+      <form @submit.prevent="signUpOpen ? signUp() : logIn()" ref="form">
+        <input v-if="signUpOpen" type="text" placeholder="Name" v-model="name" />
+        <input type="text" class="username" v-model="username" placeholder="Email" />
+        <input type="password" class="password" v-model="password" placeholder="Password" />
+        <input v-if="signUpOpen" type="password" v-model="code" placeholder="Entry Code" />
+        <input type="submit" style="display: none" />
+      </form>
       <button
         class="button-primary"
         @click="signUpOpen ? signUp() : logIn()"
@@ -30,7 +34,7 @@
 </template>
 
 <script>
-import { delay } from "@/modules/anim";
+import { delay, animateEl } from "@/modules/anim";
 export default {
   data() {
     return {
@@ -39,7 +43,8 @@ export default {
       password: "",
       code: "",
       signUpOpen: false,
-      popupShown: false
+      popupShown: false,
+      loading: false
     };
   },
   computed: {
@@ -48,16 +53,31 @@ export default {
     }
   },
   methods: {
-    logIn() {
+    async logIn() {
       //TODO: add load state
-      if (this.inputsIncomplete) return alert("Please fill out all fields.");
+      let showError = () => {
+        let inputs = this.$refs.form.querySelectorAll("input");
+        inputs.forEach(el => animateEl(el, "shake"));
+        this.loading = false;
+      };
+      if (this.inputsIncomplete) {
+        showError();
+        return alert("Please fill out all fields.");
+      }
+      this.loading = true;
       let payload = {
         email: this.username,
         password: this.password
       };
-      this.$store
-        .dispatch("logIn", payload)
-        .then(() => this.$router.push("announcement"));
+      try {
+        await this.$store.dispatch("logIn", payload);
+      } catch (err) {
+        showError();
+        return alert("Incorrect username or password");
+      }
+
+      this.loading = false;
+      this.$router.push("announcement");
     },
     async signUp() {
       if (!this.name || !this.username || !this.password || !this.code) {
@@ -74,7 +94,8 @@ export default {
         password: this.password,
         code: this.code
       };
-      await this.$store.dispatch("signUpUser", userInfo);
+      this.$store.dispatch("signUpUser", userInfo);
+      await delay(500);
       this.displayPopup();
       await delay(1000);
       this.signUpOpen = false;
@@ -95,6 +116,30 @@ export default {
   align-items: center;
   width: 100%;
   height: 100vh;
+
+  .loader {
+    $border: 3px solid var(--dark);
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-left: $border;
+    border-right: $border;
+    border-bottom: $border;
+    animation: spin 1s infinite;
+    transform-origin: center;
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  }
 
   .login-container {
     position: relative;
@@ -132,6 +177,10 @@ export default {
 
       &:-webkit-autofill {
         font-size: 25px;
+      }
+
+      &.shake {
+        animation: shake 1s;
       }
     }
   }

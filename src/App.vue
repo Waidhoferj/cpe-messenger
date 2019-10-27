@@ -193,4 +193,19 @@ button {
 .slide-leave-active {
   transition: transform 0.7s;
 }
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0px);
+  }
+  20%,
+  60% {
+    transform: translateX(20px);
+  }
+  40%,
+  80% {
+    transform: translateX(-20px);
+  }
+}
 </style>

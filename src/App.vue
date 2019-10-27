@@ -48,8 +48,8 @@ export default {
   },
   watch: {
     $route(to, from) {
-      console.log("from", from);
-      this.showMenu = to.name !== "login";
+      let screensWithoutSidebar = ["login", "signUp"];
+      this.showMenu = !screensWithoutSidebar.includes(to.name);
     }
   }
 };
@@ -148,6 +148,28 @@ body {
   height: 100%;
   background: gray;
   border: white 5px solid;
+}
+
+.button-primary {
+  margin-top: 30px;
+  background: var(--dark);
+  color: white;
+  font-size: 23px;
+}
+
+.button-secondary {
+  border: 2px solid var(--dark);
+  color: var(--dark);
+  font-size: 20px;
+}
+
+button {
+  display: block;
+  margin: 15px auto;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
 }
 
 //ANIMATIONS

@@ -1,10 +1,11 @@
 import Vue from "vue";
+import store from "@/store";
 import Router from "vue-router";
 import Login from "./views/Login.vue";
 
 Vue.use(Router);
 
-export default new Router({
+let router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
@@ -12,6 +13,12 @@ export default new Router({
       path: "/",
       name: "login",
       component: Login
+    },
+    {
+      path: "/signUp",
+      name: "signUp",
+      component: () =>
+        import(/* webpackChunkName: "signUp" */ "./views/SignUp.vue")
     },
     {
       path: "/announcement",
@@ -43,3 +50,14 @@ export default new Router({
     }
   ]
 });
+//AUTH
+// router.beforeEach(checkAuthentication);
+
+function checkAuthentication(to, from, next) {
+  console.log("store user", store.state.user);
+  let unverified = store.state.user === null;
+  if (unverified && to.name !== "login" && to.name !== "signUp") next("/");
+  else next();
+}
+
+export default router;

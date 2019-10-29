@@ -40,6 +40,10 @@ export function animateEl(el, animClass) {
   });
 }
 
+/**
+ * delays code execution asynchronously
+ * @param {number} ms number of miliseconds to delay
+ */
 export function delay(ms) {
   return new Promise(resolve => {
     setTimeout(() => {

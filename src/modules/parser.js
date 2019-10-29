@@ -25,13 +25,14 @@ export function parseKeyFrom(name) {
 
 export function parseCSV(csv) {
   let nonDigit = /\D/g;
+  let notDate = field => !/[:M]/.test(field);
   let quotes = /"/g;
-  let spacers = /,|\n/g;
+  let spacers = /[,\n]/g;
   let toPhoneNumbers = (numbers, entry) => {
     let digits = entry.replace(nonDigit, "");
-    let notValidNumber =
-      digits.length < 10 || (digits.length === 11 && digits[0] !== "1");
-    if (notValidNumber) return numbers;
+    let validNumber =
+      digits.length === 10 || (digits.length === 11 && digits[0] === "1");
+    if (!validNumber) return numbers;
     if (digits.length === 10) digits = "1" + digits;
     numbers.add(digits);
     return numbers;
@@ -39,6 +40,7 @@ export function parseCSV(csv) {
   let numberSet = csv
     .replace(quotes, "")
     .split(spacers)
+    .filter(notDate)
     .reduce(toPhoneNumbers, new Set());
   return Array.from(numberSet);
 }

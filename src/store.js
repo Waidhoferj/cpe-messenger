@@ -141,6 +141,14 @@ export default new Vuex.Store({
         "https://us-central1-cpentrepreneurs-e2e22.cloudfunctions.net/signUpWithCode",
         userInfo
       );
+    },
+    removeGroupMember(state, { group, member }) {
+      return db
+        .collection("textGroups")
+        .doc(group)
+        .update({
+          phoneNumbers: firebase.firestore.FieldValue.arrayRemove(member)
+        });
     }
   }
 });

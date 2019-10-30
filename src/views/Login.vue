@@ -27,7 +27,7 @@
     <transition name="sign-up-confirmation-popup" mode="out-in">
       <div v-if="popupShown" class="sign-up-confirmation-popup">
         <h3>Thanks for signing up!</h3>
-        <p>You're account should be ready in a couple of minutes</p>
+        <p>Your account should be ready in a couple of minutes</p>
       </div>
     </transition>
   </div>

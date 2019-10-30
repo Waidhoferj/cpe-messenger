@@ -23,7 +23,7 @@
       <h3 class="option add-group" @click="showUploadPopup = true">Add Group</h3>
       <member-adder @numberInput="selectedGroup.push($event)"></member-adder>
     </div>
-    <transition-group name="member" mode="out-in" class="group-members" tag="div">
+    <transition-group :name="memberTransition" mode="out-in" class="group-members" tag="div">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
           src="@/assets/delete-icon.svg"
@@ -74,6 +74,9 @@ export default {
       return this.searchQuery.length > 0
         ? this.selectedGroup.filter(member => member.includes(this.searchQuery))
         : this.selectedGroup;
+    },
+    memberTransition() {
+      return this.selectedGroup.length < 75 ? "member" : "";
     }
   },
   methods: {
@@ -83,6 +86,13 @@ export default {
     },
     removeMember(member) {
       //TODO:delete in server
+
+      this.$store
+        .dispatch("removeGroupMember", {
+          group: this.groupNames[this.selectedIndex],
+          member
+        })
+        .catch(err => console.error("Could not delete member:", err));
       let removeIndex = this.selectedGroup.indexOf(member);
       this.selectedGroup.splice(removeIndex, 1);
     },

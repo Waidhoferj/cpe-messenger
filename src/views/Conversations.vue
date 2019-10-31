@@ -7,16 +7,29 @@
             class="recipient"
             v-for="conversation in conversations"
             :class="{selected: conversation.from === selectedConversation.from}"
-            @click="selectedConversation = conversation"
+            @click="selectConversation(conversation)"
             :key="conversation.from"
             :contenteditable="conversation.from === selectedConversation.from"
             @blur="updateNickname($event, conversation)"
             @keyup.enter="enterNickname"
-          >{{conversation.nickname || formatPhoneNumber(conversation.from)}}</li>
+          >
+            <div v-if="conversation.unread" class="unread-icon"></div>
+            {{conversation.nickname || formatPhoneNumber(conversation.from)}}
+          </li>
         </ul>
       </div>
       <div class="conversation" ref="conversation">
-        <transition-group name="message">
+        <div class="menu-bar">
+          <img class="icon" src="@/assets/exit-icon.svg" alt="delete" @click="groupRemoverClicked" />
+          <div v-if="showMembership" class="group-remover-menu">
+            <p
+              v-for="group in selectedMembership"
+              :key="group"
+              @click="removeMember(group)"
+            >{{group}}</p>
+          </div>
+        </div>
+        <transition-group name="message" class="messages" tag="div">
           <message
             v-for="message in selectedConversation.messages"
             :key="message.timestamp"
@@ -55,12 +68,19 @@ export default {
   data() {
     return {
       selectedConversation: {},
-      message: ""
+      message: "",
+      selectedMembership: [],
+      showMembership: false
     };
   },
   computed: {
     conversations() {
-      return this.$store.state.conversations;
+      const byTime = (c1, c2) =>
+        c1.messages[c1.messages.length - 1].timestamp >
+        c2.messages[c2.messages.length - 1].timestamp
+          ? -1
+          : 1;
+      return this.$store.state.conversations.sort(byTime);
     }
   },
   watch: {
@@ -70,6 +90,11 @@ export default {
   },
   methods: {
     formatPhoneNumber,
+    selectConversation(conversation) {
+      this.selectedConversation = conversation;
+      this.showMembership = false;
+      conversation.unread = false;
+    },
     sendMessage() {
       const message = {
         sender: "messenger",
@@ -113,6 +138,33 @@ export default {
     enterNickname(e) {
       e.target.innerText = e.target.innerText.replace("\n", "");
       e.target.blur();
+    },
+    async groupRemoverClicked() {
+      //TODO: this could be optimized with computed props
+      this.showMembership = !this.showMembership;
+      if (!this.showMembership) return;
+      let groups = this.$store.state.groups;
+      let groupNames = Object.keys(groups);
+      if (!groupNames.length) {
+        console.log("fetched");
+        await this.$store.dispatch("getGroupListings");
+        groups = this.$store.state.groups;
+      }
+      let membership = [];
+      for (let name in groups) {
+        if (groups[name].includes(this.selectedConversation.from))
+          membership.push(name);
+      }
+      this.selectedMembership = membership;
+    },
+    removeMember(group) {
+      //TODO: add specified groups
+      this.selectedMembership = [];
+      this.showMembership = false;
+      this.$store.dispatch("removeGroupMember", {
+        member: this.selectedConversation.from,
+        group
+      });
     }
   },
   mounted() {
@@ -124,6 +176,8 @@ export default {
 
 <style lang="scss">
 .conversations-page {
+  $menu-bar-height: 55px;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -152,7 +206,8 @@ export default {
         height: 100%;
         overflow-y: scroll;
 
-        li {
+        .recipient {
+          position: relative;
           cursor: pointer;
           font-size: 25px;
           border-bottom: 2px solid white;
@@ -161,31 +216,77 @@ export default {
           &.selected {
             color: var(--accent);
           }
+
+          .unread-icon {
+            position: absolute;
+            background: var(--accent);
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+            opacity: 0.8;
+            border-radius: 50%;
+          }
         }
       }
     }
 
-    .message {
-      z-index: 1;
-
-      &-enter {
-        transform: translateY(20px);
-        opacity: 0;
+    .menu-bar {
+      height: $menu-bar-height;
+      position: fixed;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px;
+      height: 55px;
+      background: white;
+      box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.034);
+      .icon {
+        width: 40px;
+        cursor: pointer;
+        margin: 0 10px;
       }
 
-      &-leave-to {
-        transform: scale(0.9);
-        opacity: 0;
-      }
-
-      &-enter-active,
-      &-leave-active {
-        transition: all 0.7s;
-      }
-
-      &-leave-active {
+      .group-remover-menu {
         position: absolute;
-        z-index: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateY(100%);
+        background: white;
+        padding: 10px;
+        border: 2px solid var(--dark);
+        border-radius: 0px 0px 7px 7px;
+
+        p {
+          cursor: pointer;
+        }
+      }
+    }
+
+    .messages {
+      padding-top: $menu-bar-height + 5px;
+      .message {
+        z-index: 1;
+
+        &-enter {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+
+        &-leave-to {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+
+        &-enter-active,
+        &-leave-active {
+          transition: all 0.7s;
+        }
+
+        &-leave-active {
+          position: absolute;
+          z-index: 0;
+        }
       }
     }
 
@@ -220,6 +321,7 @@ export default {
     }
 
     .conversation {
+      position: relative;
       overflow-y: scroll;
       width: 100%;
       height: 100%;

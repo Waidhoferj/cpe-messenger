@@ -23,6 +23,15 @@ export function parseKeyFrom(name) {
     .join("");
 }
 
+/**
+ * Strips digits out of phone number input
+ * @param {string} str inputted value for phone number
+ */
+export function parseDigits(str) {
+  let nonDigit = /\D/g;
+  return str.replace(nonDigit, "");
+}
+
 export function parseCSV(csv) {
   let nonDigit = /\D/g;
   let notDate = field => !/[:M]/.test(field);

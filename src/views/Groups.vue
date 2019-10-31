@@ -21,9 +21,9 @@
     </div>
     <div class="group-options">
       <h3 class="option add-group" @click="showUploadPopup = true">Add Group</h3>
-      <member-adder @numberInput="selectedGroup.push($event)"></member-adder>
+      <member-adder @numberInput="addMember"></member-adder>
     </div>
-    <transition-group :name="memberTransition" mode="out-in" class="group-members" tag="div">
+    <div class="group-members">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
           src="@/assets/delete-icon.svg"
@@ -33,7 +33,7 @@
         />
         <div class="member-tag">{{member | formatPhoneNumber}}</div>
       </div>
-    </transition-group>
+    </div>
     <transition name="fade">
       <upload-popup
         v-if="showUploadPopup"
@@ -46,7 +46,11 @@
 </template>
 
 <script>
-import { parseNameFrom, formatPhoneNumber } from "@/modules/parser";
+import {
+  parseNameFrom,
+  formatPhoneNumber,
+  parseDigits
+} from "@/modules/parser";
 import UploadPopup from "@/components/UploadPopup";
 import MemberAdder from "@/components/MemberAdder";
 export default {
@@ -57,7 +61,6 @@ export default {
   },
   data() {
     return {
-      groups: {},
       selectedGroup: [],
       selectedIndex: 0,
       searchQuery: "",
@@ -67,12 +70,16 @@ export default {
     };
   },
   computed: {
+    groups() {
+      return this.$store.state.groups;
+    },
     groupNames() {
       return Object.keys(this.groups);
     },
     filteredMembers() {
+      let digits = parseDigits(this.searchQuery);
       return this.searchQuery.length > 0
-        ? this.selectedGroup.filter(member => member.includes(this.searchQuery))
+        ? this.selectedGroup.filter(member => member.includes(digits))
         : this.selectedGroup;
     },
     memberTransition() {
@@ -84,9 +91,13 @@ export default {
       this.selectedGroup = this.groups[this.groupNames[index]];
       this.selectedIndex = index;
     },
+    addMember(member) {
+      this.$store.dispatch("addGroupMember", {
+        member,
+        group: this.groupNames[this.selectedIndex]
+      });
+    },
     removeMember(member) {
-      //TODO:delete in server
-
       this.$store
         .dispatch("removeGroupMember", {
           group: this.groupNames[this.selectedIndex],
@@ -121,14 +132,18 @@ export default {
     formatPhoneNumber
   },
   mounted() {
-    this.$store
-      .dispatch("getGroupListings")
-      .then(groups => (this.groups = groups));
-
     if (this.groupNames.length) {
       let i = 0;
       this.selectedIndex = i;
       this.selectedGroup = this.groups[this.groupNames[i]];
+    } else {
+      this.$store.dispatch("getGroupListings").then(() => {
+        if (this.groupNames.length) {
+          let i = 0;
+          this.selectedIndex = i;
+          this.selectedGroup = this.groups[this.groupNames[i]];
+        }
+      });
     }
   }
 };
@@ -215,29 +230,6 @@ export default {
       position: relative;
       margin: 22px;
 
-      &-enter-active {
-        transition: all 0.7s;
-      }
-      &-leave-active {
-        position: absolute;
-        transition: all 0.7s;
-        z-index: 0;
-      }
-
-      &-enter,
-      &-leave-to {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-
-      &-move {
-        transition: all 0.7s;
-      }
-
-      &:hover > .member-tag {
-        transform: translateX(40px);
-      }
-
       .remove-icon {
         cursor: pointer;
         position: absolute;
@@ -256,6 +248,10 @@ export default {
         background: var(--accent);
         color: white;
         transition: transform 0.7s;
+      }
+
+      &:hover > .member-tag {
+        transform: translateX(40px);
       }
     }
   }

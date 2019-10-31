@@ -160,6 +160,7 @@ body {
 .button-secondary {
   border: 2px solid var(--dark);
   color: var(--dark);
+  background: white;
   font-size: 20px;
 }
 

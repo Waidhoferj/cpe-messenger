@@ -22,10 +22,14 @@ export default new Vuex.Store({
   state: {
     user: null,
     groupNames: ["CPE Club"],
+    groups: [],
     conversations: [],
     errors: []
   },
   mutations: {
+    setGroups(state, groups) {
+      state.groups = groups;
+    },
     setUser(state, user) {
       state.user = user.uid;
     },
@@ -33,6 +37,8 @@ export default new Vuex.Store({
       state.groupNames = groups.map(parseNameFrom);
     },
     updateConversations(state, update) {
+      console.log(update);
+      let initialUpdate = !state.conversations.length;
       const matchingConversation = conversation =>
         conversation.from === update.from;
       const itemToUpdate = state.conversations.find(matchingConversation);
@@ -41,8 +47,28 @@ export default new Vuex.Store({
         return;
       }
       if (itemToUpdate.messages.length >= update.messages.length) return;
-      let newMessageIndex = update.messages.length - 1;
-      itemToUpdate.messages.push(update.messages[newMessageIndex]);
+      let newMessage = update.messages[update.messages.length - 1];
+      itemToUpdate.messages.push(newMessage);
+      //Notify User
+      if (
+        !window.Notification ||
+        Notification.permission !== "granted" ||
+        initialUpdate
+      )
+        return;
+      let notification = new Notification(
+        itemToUpdate.nickname || itemToUpdate.from,
+        {
+          body: newMessage.text,
+          icon: "/assets/message-tag.png"
+        }
+      );
+      notification.onclick = () => {
+        router.push("/conversations");
+      };
+      setTimeout(() => {
+        notification.close();
+      }, 6000);
     },
     updateErrors({ errors }, error) {
       let date = new Date(error.timestamp).toLocaleDateString();
@@ -121,14 +147,14 @@ export default new Vuex.Store({
     sendMessage(_, message) {
       return db.collection("announcements").add(message);
     },
-    async getGroupListings() {
+    async getGroupListings({ commit }) {
       let pointers = await db.collection("textGroups").get();
       let groups = {};
       pointers.forEach(pointer => {
         if (pointer.id !== "GroupsInfo")
           groups[pointer.id] = pointer.data().phoneNumbers;
       });
-      return groups;
+      commit("setGroups", groups);
     },
     createTextGroup(context, { name, data }) {
       return db
@@ -143,12 +169,33 @@ export default new Vuex.Store({
       );
     },
     removeGroupMember(state, { group, member }) {
+      let removeIndex = state.groups[group].indexOf(member);
+      state.groups[group].splice(removeIndex, 1);
       return db
         .collection("textGroups")
         .doc(group)
         .update({
           phoneNumbers: firebase.firestore.FieldValue.arrayRemove(member)
         });
+    },
+    addGroupMember({ state }, { group, member }) {
+      state.groups[group].push(member);
+      return db
+        .collection("textGroups")
+        .doc(group)
+        .update({
+          phoneNumbers: firebase.firestore.FieldValue.arrayUnion(member)
+        });
+    },
+    notifyUser(text, sender) {
+      if (!window.Notification || Notification.permission !== "granted") return;
+      let notification = new Notification(text, { tag: sender });
+      notification.onclick = () => {
+        router.push("/conversations");
+      };
+      setTimeout(() => {
+        notification.close();
+      }, 4000);
     }
   }
 });

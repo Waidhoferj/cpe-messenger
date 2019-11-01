@@ -1,5 +1,5 @@
 export default {
-  apiKey: "AIzaSyA0_WhIKiDS-2n4ohnmqFIW9P42WlyesYw",
+  apiKey: process.env.VUE_APP_KEY,
   authDomain: "cpentrepreneurs-e2e22.firebaseapp.com",
   databaseURL: "https://cpentrepreneurs-e2e22.firebaseio.com",
   projectId: "cpentrepreneurs-e2e22",

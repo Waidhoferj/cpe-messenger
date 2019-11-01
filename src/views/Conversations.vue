@@ -105,7 +105,6 @@ export default {
         message,
         recipient: this.selectedConversation.from
       });
-      // this.selectedConversation.messages.push(message);
       this.message = "";
       this.$refs.messageInput.innerText = "";
     },

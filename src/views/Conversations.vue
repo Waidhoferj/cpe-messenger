@@ -253,7 +253,7 @@ export default {
         transform: translateY(100%);
         background: white;
         padding: 10px;
-        border: 2px solid var(--dark);
+        border: 2px solid whitesmoke;
         border-radius: 0px 0px 7px 7px;
 
         p {

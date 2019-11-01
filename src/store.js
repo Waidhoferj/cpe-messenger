@@ -50,12 +50,12 @@ export default new Vuex.Store({
       let newMessage = update.messages[update.messages.length - 1];
       itemToUpdate.messages.push(newMessage);
       //Notify User
-      if (
+      let cancelNotification =
         !window.Notification ||
         Notification.permission !== "granted" ||
-        initialUpdate
-      )
-        return;
+        initialUpdate ||
+        newMessage.sender === "messenger";
+      if (cancelNotification) return;
       let notification = new Notification(
         itemToUpdate.nickname || itemToUpdate.from,
         {

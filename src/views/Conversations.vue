@@ -20,7 +20,12 @@
       </div>
       <div class="conversation" ref="conversation">
         <div class="menu-bar">
-          <img class="icon" src="@/assets/exit-icon.svg" alt="delete" @click="groupRemoverClicked" />
+          <img
+            class="icon"
+            src="@/assets/exit-icon.svg"
+            alt="remove group"
+            @click="groupRemoverClicked"
+          />
           <div v-if="showMembership" class="group-remover-menu">
             <p
               v-for="group in selectedMembership"
@@ -28,6 +33,7 @@
               @click="removeMember(group)"
             >{{group}}</p>
           </div>
+          <img class="icon" src="@/assets/delete-icon.svg" alt="delete" @click="deleteConversation" />
         </div>
         <transition-group name="message" class="messages" tag="div">
           <message
@@ -163,6 +169,11 @@ export default {
       this.$store.dispatch("removeGroupMember", {
         member: this.selectedConversation.from,
         group
+      });
+    },
+    deleteConversation() {
+      this.$store.dispatch("deleteConversation", {
+        conversation: this.selectedConversation
       });
     }
   },

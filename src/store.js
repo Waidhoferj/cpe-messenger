@@ -196,6 +196,24 @@ export default new Vuex.Store({
       setTimeout(() => {
         notification.close();
       }, 4000);
+    },
+    async deleteConversation({ state }, { conversation }) {
+      let removeIndex = state.conversations.indexOf(conversation);
+      state.conversations.splice(removeIndex, 1);
+
+      let pointers = await db
+        .collection("conversations")
+        .where("from", "==", conversation.from)
+        .get();
+      let ids = [];
+      pointers.forEach(pointer => {
+        ids.push(pointer.id);
+      });
+      if (!ids.length)
+        return console.error("Couldn't find conversation to delete");
+      db.collection("conversations")
+        .doc(ids[0])
+        .delete();
     }
   }
 });

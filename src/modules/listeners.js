@@ -4,6 +4,7 @@ export function attachListeners(db) {
   //Track conversation updates
   db.collection("conversations").onSnapshot(snapshot => {
     snapshot.docChanges().forEach(change => {
+      if (change.type == "removed") return;
       store.commit("updateConversations", change.doc.data());
     });
   });

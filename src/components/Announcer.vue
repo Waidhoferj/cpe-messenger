@@ -1,7 +1,7 @@
 <template>
   <div class="announcer-component" :class="{'anim-send': isSending}">
     <header>
-      <h2 class="title">Announcement</h2>
+      <h2 class="title">Announcements</h2>
       <h3 class="selected-group" @click="selectingGroup = !selectingGroup">To: {{selectedGroup}}</h3>
     </header>
     <section>

@@ -15,11 +15,11 @@ let router = new Router({
       component: Login
     },
     {
-      path: "/announcement",
-      name: "announcement",
+      path: "/announcements",
+      name: "announcements",
       component: () =>
         import(
-          /* webpackChunkName: "announcement" */ "./views/Announcement.vue"
+          /* webpackChunkName: "announcements" */ "./views/Announcements.vue"
         )
     },
     {

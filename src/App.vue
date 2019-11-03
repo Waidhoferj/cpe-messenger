@@ -12,7 +12,7 @@
         <img src="./assets/logo.svg" class="logo" />
         <router-link tag="div" to="/announcement" class="option">
           <img src="./assets/announcement-icon.svg" alt="img" />
-          <h3 v-show="menuOpen" class="menu-desc">Announcement</h3>
+          <h3 v-show="menuOpen" class="menu-desc">Announcements</h3>
         </router-link>
         <router-link tag="div" to="/conversations" class="option">
           <img src="./assets/conversation-icon.svg" alt="img" />

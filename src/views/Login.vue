@@ -77,7 +77,7 @@ export default {
       }
 
       this.loading = false;
-      this.$router.push("announcement");
+      this.$router.push("announcements");
     },
     async signUp() {
       if (!this.name || !this.username || !this.password || !this.code) {

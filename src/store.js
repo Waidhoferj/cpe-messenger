@@ -168,8 +168,9 @@ export default new Vuex.Store({
         userInfo
       );
     },
-    removeGroupMember(state, { group, member }) {
+    removeGroupMember({ state }, { group, member }) {
       let removeIndex = state.groups[group].indexOf(member);
+      if (removeIndex < 0) return;
       state.groups[group].splice(removeIndex, 1);
       return db
         .collection("textGroups")

@@ -135,8 +135,12 @@ export default {
           getComputedStyle(this.$el).getPropertyValue("--send-duration")
         ) * 1000;
       this.isSending = true;
+      //Clear old data
       return new Promise(resolve => {
-        setTimeout(() => (this.message = ""), duration / 2);
+        setTimeout(() => {
+          this.cancelSchedule();
+          this.message = "";
+        }, duration / 2);
         setTimeout(() => resolve((this.isSending = false)), duration);
       });
     },

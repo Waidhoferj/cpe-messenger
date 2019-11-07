@@ -39,9 +39,15 @@
               </g>
             </svg>
             <img src="@/assets/send-icon.svg" alt="Send" @click="sendMessage" :disabled="isSending" />
-            <div class="char-count">
-              <h4>{{charactersRemaining}}</h4>
-              <p>left</p>
+            <div class="counter">
+              <div class="char-count">
+                <h4>{{messagePackets}}</h4>
+                <p>message(s)</p>
+              </div>
+              <div class="char-count">
+                <h4>{{charactersRemaining}}</h4>
+                <p>left</p>
+              </div>
             </div>
           </div>
         </div>
@@ -107,6 +113,9 @@ export default {
     },
     groups() {
       return this.$store.state.groupNames;
+    },
+    messagePackets() {
+      return Math.floor(this.message.length / this.charsPerMessage);
     },
     scheduled() {
       return this.schedule.date && this.schedule.time;
@@ -231,18 +240,23 @@ export default {
           fill: var(--accent) !important;
         }
 
-        .char-count {
-          text-align: center;
+        .counter {
+          display: flex;
+          justify-content: space-between;
 
-          h4 {
-            margin: 0;
-          }
+          .char-count {
+            text-align: center;
 
-          p {
-            font-size: 13px;
-            width: 70px;
-            margin: 0;
-            color: var(--dark);
+            h4 {
+              margin: 0;
+            }
+
+            p {
+              font-size: 13px;
+              width: 70px;
+              margin: 0;
+              color: var(--dark);
+            }
           }
         }
       }

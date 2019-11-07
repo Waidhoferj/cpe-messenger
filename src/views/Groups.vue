@@ -36,12 +36,12 @@
       </div>
     </div>
     <transition name="fade">
-      <upload-popup
+      <group-popup
         v-if="showUploadPopup"
         :dragging="draggingInFile"
         :file="uploadFile"
         @close="closePopup"
-      ></upload-popup>
+      ></group-popup>
     </transition>
   </div>
 </template>
@@ -52,12 +52,12 @@ import {
   formatPhoneNumber,
   parseDigits
 } from "@/modules/parser";
-import UploadPopup from "@/components/UploadPopup";
+import GroupPopup from "@/components/GroupPopup";
 import MemberAdder from "@/components/MemberAdder";
 export default {
   name: "groups",
   components: {
-    UploadPopup,
+    GroupPopup,
     MemberAdder
   },
   data() {

@@ -33,8 +33,21 @@ export default new Vuex.Store({
     setUser(state, user) {
       state.user = user.uid;
     },
-    updateGroupNames(state, groups) {
-      state.groupNames = groups.map(parseNameFrom);
+    /**
+     * Updates groupNames and groups locally when a new group is added.
+     * @param {object} group the name and phone numbers for the new text group
+     */
+    updateGroups(state, group) {
+      debugger;
+      state.groups[group.name] = group.data;
+      state.groupNames.push(parseNameFrom(group.name));
+    },
+    /**
+     * Sets initial value of group names in first server fetch
+     * @param {array} groupNames group names from server
+     */
+    setGroupNames(state, groupNames) {
+      state.groupNames = groupNames;
     },
     updateConversations(state, update) {
       console.log(update);
@@ -95,7 +108,7 @@ export default new Vuex.Store({
       attachListeners(db, auth);
       const { groupsList } = await dispatch("getData", `textGroups/GroupsInfo`);
       groupsList
-        ? commit("updateGroupNames", groupsList)
+        ? commit("setGroupNames", groupsList)
         : console.error("no groups found");
     },
 
@@ -156,11 +169,16 @@ export default new Vuex.Store({
       });
       commit("setGroups", groups);
     },
-    createTextGroup(context, { name, data }) {
-      return db
+    /**
+     * Adds a new text group to choose from when sending announcements
+     * @param {*} group the name of the new text group and the associated phone numbers
+     */
+    async createTextGroup({ commit }, group) {
+      commit("updateGroups", group);
+      await db
         .collection("textGroups")
-        .doc(name)
-        .set({ phoneNumbers: data });
+        .doc(group.name)
+        .set({ phoneNumbers: group.data });
     },
     signUpUser(context, userInfo) {
       return axios.post(

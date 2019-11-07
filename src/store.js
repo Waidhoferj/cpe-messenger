@@ -180,6 +180,7 @@ export default new Vuex.Store({
         });
     },
     addGroupMember({ state }, { group, member }) {
+      if (state.groups[group].includes(member)) return;
       state.groups[group].push(member);
       return db
         .collection("textGroups")

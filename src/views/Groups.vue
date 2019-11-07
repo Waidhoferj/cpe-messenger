@@ -75,7 +75,7 @@ export default {
       return this.$store.state.groups;
     },
     groupNames() {
-      return Object.keys(this.groups);
+      return this.$store.state.groupNames;
     },
     filteredMembers() {
       let digits = parseDigits(this.searchQuery);
@@ -133,17 +133,18 @@ export default {
     formatPhoneNumber
   },
   mounted() {
-    if (this.groupNames.length) {
+    let groupsLoaded = Object.keys(this.groups).length;
+    let setUp = () => {
       let i = 0;
       this.selectedIndex = i;
       this.selectedGroup = this.groups[this.groupNames[i]];
+    };
+    if (groupsLoaded) {
+      setUp();
     } else {
       this.$store.dispatch("getGroupListings").then(() => {
-        if (this.groupNames.length) {
-          let i = 0;
-          this.selectedIndex = i;
-          this.selectedGroup = this.groups[this.groupNames[i]];
-        }
+        let groupsExist = Object.keys(this.groups).length;
+        if (groupsExist) setUp();
       });
     }
   }
@@ -154,13 +155,12 @@ export default {
 .groups-page {
   .groups-selector {
     display: flex;
-    justify-content: center;
     overflow-x: scroll;
     flex-wrap: nowrap;
     margin: auto;
     padding: 50px 0;
-    width: 70%;
-    min-width: 500px;
+    width: min-content;
+    max-width: 70%;
     .group {
       margin: 0 15px;
       white-space: nowrap;

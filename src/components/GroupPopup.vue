@@ -85,18 +85,17 @@ export default {
       this.phoneNumbers.push(number);
     },
     async addGroup() {
-      let { state, commit, dispatch } = this.$store;
       if (!this.phoneNumbers.length || !this.groupName)
         return alert("Please fill out group name and add members.");
-      await dispatch("createTextGroup", {
-        name: parseKeyFrom(this.groupName),
-        data: this.phoneNumbers
-      }).catch(err => {
-        console.error(err);
-        alert("Sorry, the group cant be created at this time");
-      });
-
-      commit("updateGroupNames", [...state.groupNames, this.groupName]);
+      await this.$store
+        .dispatch("createTextGroup", {
+          name: parseKeyFrom(this.groupName),
+          data: this.phoneNumbers
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Sorry, the group cant be created at this time");
+        });
       this.$emit("close");
     }
   },

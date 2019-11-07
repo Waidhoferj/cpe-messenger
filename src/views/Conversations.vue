@@ -194,7 +194,7 @@ export default {
   align-items: center;
   .content {
     display: grid;
-    grid-template-rows: 80vh 100px;
+    grid-template-rows: 80vh min-content;
     grid-template-columns: 25vw 55vw;
     grid-template-areas:
       "recipients conversation"

@@ -23,6 +23,7 @@
       <h3 class="option add-group" @click="showUploadPopup = true">Add Group</h3>
       <member-adder @numberInput="addMember"></member-adder>
     </div>
+    <p class="member-count">{{selectedGroup.length}} Members</p>
     <div class="group-members">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
@@ -212,6 +213,13 @@ export default {
         animation: shake 1s;
       }
     }
+  }
+
+  .member-count {
+    margin: 0;
+    margin-top: 20px;
+    font-weight: 700;
+    font-size: 20px;
   }
 
   .group-members {

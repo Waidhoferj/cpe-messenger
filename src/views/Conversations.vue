@@ -133,8 +133,16 @@ export default {
       let nicknameUnchanged =
         conversation.from == innerText ||
         (conversation.nickname && conversation.nickname === innerText);
-
-      if (nicknameUnchanged) return;
+      // conducts the regex checking to ensure only alphanumeric characters pass
+      let whitespaceRegex = /^\s$/;
+      let onlyNumbersRegex = /^[0-9-]*$/;
+      let invalidNickname =
+        whitespaceRegex.test(innerText) || onlyNumbersRegex.test(innerText);
+      if (nicknameUnchanged || invalidNickname) {
+        innerText = "hey";
+        console.log(innerText);
+        return;
+      }
       conversation.nickname = innerText;
       this.$store.dispatch("updateNickname", conversation);
     },

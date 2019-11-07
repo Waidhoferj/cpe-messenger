@@ -4,6 +4,7 @@
     contenteditable="true"
     @click="onNewMemberClick"
     @blur="onNewMemberBlur"
+    @keydown.enter="$event.preventDefault()"
     @keyup.enter="onNewMemberEnter"
   >Add Member</h3>
 </template>
@@ -15,7 +16,6 @@ export default {
       e.target.innerText = "";
     },
     onNewMemberEnter(e) {
-      //TODO: add new member to list in server
       let nonDigit = /\D/g;
       let digits = e.target.innerText.replace(nonDigit, "").trim();
 
@@ -38,6 +38,11 @@ export default {
     },
     onNewMemberBlur(e) {
       e.target.innerText = "Add Member";
+    },
+    preventEnter(e) {
+      debugger;
+      if (e.key !== "Enter") return;
+      e.preventDefault();
     }
   }
 };

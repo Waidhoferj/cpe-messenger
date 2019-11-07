@@ -12,6 +12,7 @@
             :contenteditable="conversation.from === selectedConversation.from"
             @blur="updateNickname($event, conversation)"
             @keyup.enter="enterNickname"
+            @keydown.enter="$event.preventDefault()"
           >
             <div v-if="conversation.unread" class="unread-icon"></div>
             {{conversation.nickname || formatPhoneNumber(conversation.from)}}

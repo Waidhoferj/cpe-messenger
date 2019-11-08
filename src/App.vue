@@ -71,7 +71,7 @@ body {
   --accent: #df8162;
   --background: #ffffff;
   --card: #f9f9f9;
-  --sidebar-width: 110px;
+  --sidebar-width: 90px;
 
   font-family: "Montserrat", Helvetica, Arial, sans-serif;
   font-weight: 500;

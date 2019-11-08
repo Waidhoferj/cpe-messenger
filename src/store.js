@@ -34,13 +34,21 @@ export default new Vuex.Store({
       state.user = user.uid;
     },
     /**
-     * Updates groupNames and groups locally when a new group is added.
+     * Adds new group locally.
      * @param {object} group the name and phone numbers for the new text group
      */
-    updateGroups(state, group) {
-      debugger;
+    addGroup(state, group) {
       state.groups[group.name] = group.data;
       state.groupNames.push(parseNameFrom(group.name));
+    },
+    /**
+     * Adds new members to group locally
+     */
+    updateGroupMembers(state, { groupName, members }) {
+      members.forEach(member => {
+        if (!state.groups[groupName].includes(member))
+          state.groups[groupName].push(member);
+      });
     },
     /**
      * Sets initial value of group names in first server fetch
@@ -50,7 +58,6 @@ export default new Vuex.Store({
       state.groupNames = groupNames;
     },
     updateConversations(state, update) {
-      console.log(update);
       let initialUpdate = !state.conversations.length;
       const matchingConversation = conversation =>
         conversation.from === update.from;
@@ -174,7 +181,7 @@ export default new Vuex.Store({
      * @param {*} group the name of the new text group and the associated phone numbers
      */
     async createTextGroup({ commit }, group) {
-      commit("updateGroups", group);
+      commit("addGroup", group);
       await db
         .collection("textGroups")
         .doc(group.name)
@@ -197,14 +204,13 @@ export default new Vuex.Store({
           phoneNumbers: firebase.firestore.FieldValue.arrayRemove(member)
         });
     },
-    addGroupMember({ state }, { group, member }) {
-      if (state.groups[group].includes(member)) return;
-      state.groups[group].push(member);
+    addGroupMembers({ state, commit }, { group, members }) {
+      commit("updateGroupMembers", { groupName: group, members });
       return db
         .collection("textGroups")
         .doc(group)
         .update({
-          phoneNumbers: firebase.firestore.FieldValue.arrayUnion(member)
+          phoneNumbers: firebase.firestore.FieldValue.arrayUnion(...members)
         });
     },
     notifyUser(text, sender) {

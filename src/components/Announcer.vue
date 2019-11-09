@@ -2,7 +2,10 @@
   <div class="announcer-component" :class="{'anim-send': isSending}">
     <header>
       <h2 class="title">Announcements</h2>
-      <h3 class="selected-group" @click="selectingGroup = !selectingGroup">To: {{selectedGroup}}</h3>
+      <h3
+        class="selected-group"
+        @click="selectingGroup = !selectingGroup"
+      >To: {{selectedGroup | parseNameFrom}}</h3>
     </header>
     <section>
       <transition name="downslide">
@@ -55,10 +58,10 @@
       <ul class="categories">
         <li
           class="category"
-          v-for="category in groups"
-          :key="category"
-          @click="selectGroup"
-        >{{category}}</li>
+          v-for="group in groups"
+          :key="group"
+          @click="selectGroup(group)"
+        >{{group | parseNameFrom}}</li>
       </ul>
       <transition name="downslide">
         <div class="scheduler" v-if="schedule.isScheduling">
@@ -86,7 +89,7 @@
 
 <script>
 import Calendar from "@/components/Calendar";
-import { parseKeyFrom } from "@/modules/parser";
+import { parseNameFrom } from "@/modules/parser";
 export default {
   components: {
     Calendar
@@ -131,7 +134,7 @@ export default {
         : Date.now();
       const message = {
         text: this.message,
-        group: parseKeyFrom(this.selectedGroup),
+        group: this.selectedGroup,
         timestamp,
         sent: false
       };
@@ -153,8 +156,8 @@ export default {
         setTimeout(() => resolve((this.isSending = false)), duration);
       });
     },
-    selectGroup(event) {
-      this.selectedGroup = event.target.innerText;
+    selectGroup(title) {
+      this.selectedGroup = title;
       this.selectingGroup = false;
     },
     cancelSchedule() {
@@ -162,6 +165,9 @@ export default {
       this.schedule.time = "";
       this.schedule.date = "";
     }
+  },
+  filters: {
+    parseNameFrom
   },
   mounted() {
     this.selectedGroup = this.groups[0];
@@ -280,7 +286,7 @@ export default {
         transition: letter-spacing 0.7s;
 
         &:hover {
-          letter-spacing: 3px;
+          letter-spacing: 2px;
         }
       }
     }

@@ -7,14 +7,14 @@
     @dragover.prevent
   >
     <div class="backdrop" @click="$emit('close')"></div>
-    <div class="form-popup choice-popup" v-if="state == 'choose'" :class="{dragging: isDragging}">
+    <div class="choice-popup" v-if="state == 'choose'" :class="{dragging: isDragging}">
       <img src="@/assets/file-icon.svg" class="file-icon" />
       <ul class="choices" v-if="!isDragging">
         <li @click="state = 'add'">Add to Existing Group</li>
         <li @click="state = 'create'">Create New Group</li>
       </ul>
     </div>
-    <div class="creation-popup" v-else-if="state == 'create'">
+    <div class="form-popup creation-popup" v-else-if="state == 'create'">
       <form class="validation">
         <input class="group-name" type="text" v-model="groupName" placeholder="Group Name" />
         <h4 class="count">{{memberCount}}</h4>
@@ -27,7 +27,9 @@
             >{{number | formatPhoneNumber}}</li>
           </ul>
           <div class="actions">
-            <member-adder @numberInput="addNumber"></member-adder>
+            <div style="display:flex; justify-content:center;">
+              <member-adder @numberInput="addNumber"></member-adder>
+            </div>
             <div class="bar">
               <img src="@/assets/dark-confirm-icon.svg" alt="confirm" @click="addGroup" />
             </div>
@@ -152,6 +154,13 @@ export default {
 </script>
 
 <style lang="scss">
+@mixin abs-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .group-popup {
   position: absolute;
   top: 0;
@@ -169,33 +178,31 @@ export default {
   }
 
   .form-popup {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40vw;
-    height: 40vw;
+    @include abs-center;
+    width: 95vw;
+    max-width: 550px;
+    height: 80vh;
+    max-height: 550px;
     background: whitesmoke;
     border-radius: 15px;
-    pointer-events: all;
-    transform: scale(1) translate(-50%, -50%);
-    box-shadow: 0 0 31px 3px rgba(0, 0, 0, 0.123);
+
     transition: all 1s;
   }
 
   .choice-popup {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 50vw;
-    height: 50vw;
+    @include abs-center;
+    width: 80vw;
+    max-width: 600px;
+    height: 80vh;
+    max-height: 600px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     background: white;
     border-radius: 50%;
-    box-shadow: 0 0 31px 3px rgba(0, 0, 0, 0.123);
-    transform: translate(-50%, -50%) scale(0.7);
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: all 1s;
 
     &.dragging {
       pointer-events: none;
@@ -206,6 +213,7 @@ export default {
       padding: 0;
 
       li {
+        color: gray;
         cursor: pointer;
         font-size: 25px;
         margin: 15px auto;
@@ -213,17 +221,6 @@ export default {
     }
   }
   .creation-popup {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40vw;
-    height: 40vw;
-    background: whitesmoke;
-    border-radius: 15px;
-    pointer-events: all;
-    transform: scale(1) translate(-50%, -50%);
-    box-shadow: 0 0 31px 3px rgba(0, 0, 0, 0.123);
-    transition: all 1s;
     .validation {
       height: 100%;
       display: flex;
@@ -281,15 +278,26 @@ export default {
   }
 
   .adding-popup {
+    h2 {
+      font-size: 35px;
+      margin-top: 60px;
+    }
+
     .groups {
       margin: auto;
       list-style: none;
       padding: 0;
       li {
-        font-size: 20px;
+        font-size: 22px;
         cursor: pointer;
         color: var(--dark);
         margin: 15px auto;
+        letter-spacing: inherit;
+        transition: letter-spacing 0.7s;
+
+        &:hover {
+          letter-spacing: 2px;
+        }
       }
     }
   }

@@ -15,7 +15,7 @@
       </ul>
     </div>
     <div class="form-popup creation-popup" v-else-if="state == 'create'">
-      <form class="validation">
+      <form class="validation" @submit.prevent>
         <input class="group-name" type="text" v-model="groupName" placeholder="Group Name" />
         <h4 class="count">{{memberCount}}</h4>
         <div class="spacer">

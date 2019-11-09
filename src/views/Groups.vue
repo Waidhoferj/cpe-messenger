@@ -1,11 +1,5 @@
 <template>
-  <div
-    class="page groups-page"
-    @dragenter="onDragEnter"
-    @dragover.prevent
-    @dragleave="onDragLeave"
-    @drop.prevent.stop="getDroppedFiles"
-  >
+  <div class="page groups-page" @dragenter="showGroupPopup = true" @dragover.prevent>
     <div class="groups-selector">
       <div
         v-for="(group, index) in groupNames"
@@ -20,10 +14,10 @@
       <input type="text" class="search-input" v-model="searchQuery" />
     </div>
     <div class="group-options">
-      <h3 class="option add-group" @click="showUploadPopup = true">Add Group</h3>
+      <h3 class="option add-group" @click="showGroupPopup = true">Add Group</h3>
       <member-adder @numberInput="addMember"></member-adder>
     </div>
-    <p class="member-count">{{selectedGroup.length}} Members</p>
+    <p class="member-count">{{memberCount}} Members</p>
     <div class="group-members">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
@@ -35,14 +29,7 @@
         <div class="member-tag">{{member | formatPhoneNumber}}</div>
       </div>
     </div>
-    <transition name="fade">
-      <group-popup
-        v-if="showUploadPopup"
-        :dragging="draggingInFile"
-        :file="uploadFile"
-        @close="closePopup"
-      ></group-popup>
-    </transition>
+    <group-popup class="group-popup" v-if="showGroupPopup" @close="closePopup"></group-popup>
   </div>
 </template>
 
@@ -65,9 +52,7 @@ export default {
       selectedGroup: [],
       selectedIndex: 0,
       searchQuery: "",
-      showUploadPopup: false,
-      draggingInFile: false,
-      uploadFile: null
+      showGroupPopup: false
     };
   },
   computed: {
@@ -83,8 +68,8 @@ export default {
         ? this.selectedGroup.filter(member => member.includes(digits))
         : this.selectedGroup;
     },
-    memberTransition() {
-      return this.selectedGroup.length < 75 ? "member" : "";
+    memberCount() {
+      return this.selectedGroup ? this.selectedGroup.length : "";
     }
   },
   methods: {
@@ -93,8 +78,8 @@ export default {
       this.selectedIndex = index;
     },
     addMember(member) {
-      this.$store.dispatch("addGroupMember", {
-        member,
+      this.$store.dispatch("addGroupMembers", {
+        members: [member],
         group: this.groupNames[this.selectedIndex]
       });
     },
@@ -108,24 +93,25 @@ export default {
       let removeIndex = this.selectedGroup.indexOf(member);
       this.selectedGroup.splice(removeIndex, 1);
     },
-    getDroppedFiles(event) {
-      event.preventDefault();
-      this.draggingInFile = false;
-      let fileTest = event.dataTransfer.items[0].getAsFile();
-      const { files } = event.dataTransfer;
-      this.uploadFile = files[0];
-    },
+
     closePopup() {
-      this.uploadFile = null;
-      this.showUploadPopup = false;
+      this.showGroupPopup = false;
     },
 
-    onDragEnter() {
-      this.draggingInFile = this.showUploadPopup = true;
-    },
-
-    onDragLeave() {
-      this.draggingInFile = this.showUploadPopup = false;
+    ensureGroupLoad() {
+      let setUp = () => {
+        let i = 0;
+        this.selectedIndex = i;
+        this.selectedGroup = this.groups[this.groupNames[i]];
+      };
+      if (this.groups && Object.keys(this.groups).length) {
+        setUp();
+      } else {
+        this.$store.dispatch("getGroupListings").then(() => {
+          let groupsExist = Object.keys(this.groups).length;
+          if (groupsExist) setUp();
+        });
+      }
     }
   },
   filters: {
@@ -133,20 +119,7 @@ export default {
     formatPhoneNumber
   },
   mounted() {
-    let groupsLoaded = Object.keys(this.groups).length;
-    let setUp = () => {
-      let i = 0;
-      this.selectedIndex = i;
-      this.selectedGroup = this.groups[this.groupNames[i]];
-    };
-    if (groupsLoaded) {
-      setUp();
-    } else {
-      this.$store.dispatch("getGroupListings").then(() => {
-        let groupsExist = Object.keys(this.groups).length;
-        if (groupsExist) setUp();
-      });
-    }
+    this.ensureGroupLoad();
   }
 };
 </script>
@@ -233,9 +206,9 @@ export default {
     justify-content: center;
 
     .member {
-      z-index: 1;
       display: block;
       position: relative;
+      z-index: 1;
       margin: 22px;
 
       .remove-icon {
@@ -251,7 +224,6 @@ export default {
         position: relative;
         z-index: 1;
         border-radius: 7px;
-
         padding: 15px 10px;
         background: var(--accent);
         color: white;

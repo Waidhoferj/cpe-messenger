@@ -151,7 +151,6 @@ export default {
       let groups = this.$store.state.groups;
       let groupNames = Object.keys(groups);
       if (!groupNames.length) {
-        console.log("fetched");
         await this.$store.dispatch("getGroupListings");
         groups = this.$store.state.groups;
       }

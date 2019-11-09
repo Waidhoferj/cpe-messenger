@@ -196,20 +196,21 @@ export default {
   }
 
   .group-members {
+    display: grid;
+    grid-template-columns: repeat(5, min-content);
+    justify-content: center;
     margin: auto;
     margin-top: 20px;
     padding: 20px;
-    width: 90%;
+    width: 95%;
     max-width: 1000px;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
 
     .member {
       display: block;
       position: relative;
       z-index: 1;
       margin: 22px;
+      white-space: nowrap;
 
       .remove-icon {
         cursor: pointer;

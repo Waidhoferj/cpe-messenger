@@ -174,6 +174,8 @@ export default {
       this.$store.dispatch("deleteConversation", {
         conversation: this.selectedConversation
       });
+      if (this.conversations.length)
+        this.selectedConversation = this.conversations[0];
     }
   },
   mounted() {

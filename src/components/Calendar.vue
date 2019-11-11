@@ -108,6 +108,9 @@ export default {
       this.dateContext.date(date);
       this.selectedDate = this.dateContext.clone();
     }
+  },
+  mounted() {
+    this.$emit("update:date", this.selectedDate.format("MM/DD/YYYY"));
   }
 };
 </script>

@@ -130,12 +130,18 @@ export default {
      */
     updateNickname(event, conversation) {
       let { innerText } = event.target;
+      let validNickname = /[A-Za-z]/;
       let nicknameUnchanged =
         conversation.from == innerText ||
         (conversation.nickname && conversation.nickname === innerText);
       if (nicknameUnchanged) return;
-      conversation.nickname = innerText;
-      this.$store.dispatch("updateNickname", conversation);
+      if (validNickname.test(innerText)) {
+        conversation.nickname = innerText;
+        this.$store.dispatch("updateNickname", conversation);
+      } else {
+        event.target.innerText =
+          conversation.nickname || formatPhoneNumber(conversation.from);
+      }
     },
     /**
      * Handles closing the nickname field when enter is pressed

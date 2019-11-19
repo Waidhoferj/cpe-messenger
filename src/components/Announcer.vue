@@ -1,7 +1,7 @@
 <template>
   <div class="announcer-component" :class="{'anim-send': isSending}">
     <header>
-      <h2 class="title">Announcements</h2>
+      <h2 class="title">Announcement</h2>
       <h3
         class="selected-group"
         @click="selectingGroup = !selectingGroup"
@@ -194,13 +194,13 @@ export default {
     animation: anim-send var(--send-duration) ease-in-out;
   }
   .title {
-    font-size: 40px;
+    font-size: 32px;
     color: white;
   }
 
   .selected-group {
     cursor: pointer;
-    font-size: 30px;
+    font-size: 25px;
     color: white;
   }
 

@@ -24,7 +24,8 @@ export default new Vuex.Store({
     groupNames: ["CPE Club"],
     groups: [],
     conversations: [],
-    errors: []
+    errors: [],
+    announcementQueue: []
   },
   mutations: {
     setGroups(state, groups) {
@@ -104,6 +105,32 @@ export default new Vuex.Store({
       state.conversations = [];
       state.errors = [];
       auth.logOut();
+    },
+    /**
+     * Handles any server changes that effect the announcement queue
+     * @param {string} operation payload property which identifies what type of change has occurred. Keywords modeled after firestore's change.type enum.
+     * @param data payload property which holds the changed document.
+     */
+    updateQueue(state, { operation, data }) {
+      console.log("update", operation, data);
+      switch (operation) {
+        case "added":
+          state.announcementQueue.push(data);
+          break;
+        case "modified":
+          console.log("TODO: add modification function to the queue");
+          break;
+
+        case "removed":
+          let elToDelete = el =>
+            el.timestamp === data.timestamp && el.text === data.text;
+          let removeIndex = state.announcementQueue.findIndex(elToDelete);
+          if (removeIndex < 0) return;
+          state.announcementQueue.splice(removeIndex, 1);
+          break;
+        default:
+          break;
+      }
     }
   },
   actions: {
@@ -238,6 +265,23 @@ export default new Vuex.Store({
       if (!ids.length)
         return console.error("Couldn't find conversation to delete");
       db.collection("conversations")
+        .doc(ids[0])
+        .delete();
+    },
+    /**
+     * Deletes announcement in server.
+     * @param {*} announcement the announcement to delete
+     */
+    async deleteAnnouncement({ commit }, announcement) {
+      let pointers = await db
+        .collection("announcements")
+        .where("text", "==", announcement.text)
+        .get();
+      let ids = [];
+      pointers.forEach(({ id }) => ids.push(id));
+      if (!ids.length) return;
+      return db
+        .collection("announcements")
         .doc(ids[0])
         .delete();
     }

@@ -2,21 +2,31 @@
   <div class="page announcement-page">
     <div class="content">
       <announcer class="announcer"></announcer>
-      <notifications class="notifications"></notifications>
-      <event-calendar class="event-calendar"></event-calendar>
+      <div class="queue">
+        <h2 v-if="announcementQueue.length">Queue</h2>
+        <h3 class="empty-message" v-else>No messages in queue</h3>
+        <transition-group name="queue" mode="out-in" tag="div" class="messages">
+          <queued-message v-for="msg in announcementQueue" :announcement="msg" :key="msg.timestamp"></queued-message>
+        </transition-group>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Announcer from "@/components/Announcer";
-import EventCalendar from "@/components/EventCalendar";
-import Notifications from "@/components/Notifications";
+import QueuedMessage from "@/components/QueuedMessage.vue";
 export default {
   components: {
     Announcer,
-    EventCalendar,
-    Notifications
+    QueuedMessage
+  },
+  computed: {
+    announcementQueue() {
+      return this.$store.state.announcementQueue.sort(
+        (a, b) => a.timestamp - b.timestamp
+      );
+    }
   }
 };
 </script>
@@ -28,7 +38,7 @@ export default {
   justify-content: center;
   .content {
     display: grid;
-    grid-column-gap: 20px;
+    grid-column-gap: 80px;
     grid-row-gap: 20px;
     grid-template-rows: repeat(2, 40vh);
     grid-template-columns: repeat(2, 40vw);
@@ -41,11 +51,45 @@ export default {
     grid-area: widget1;
   }
 
-  .notifications {
+  .queue {
+    width: 80%;
+    margin: 0 auto;
     grid-area: widget2;
-  }
-  .event-calendar {
-    grid-area: widget3;
+    max-height: 90%;
+
+    h2 {
+      text-align: left;
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+
+    .empty-message {
+      font-weight: 500;
+    }
+
+    .messages {
+      display: block;
+      height: 100%;
+      position: relative;
+      overflow-y: scroll;
+    }
+
+    &-enter,
+    &-leave-to {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+
+    &-enter-active,
+    &-leave-active,
+    &-move {
+      transition: all 0.7s;
+    }
+    &-leave-active {
+      position: absolute;
+      z-index: 0;
+    }
   }
 }
 </style>

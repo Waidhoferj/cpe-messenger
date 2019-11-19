@@ -9,11 +9,15 @@ export function attachListeners(db) {
     });
   });
 
-  db.collection("functionErrors")
-    .where("timestamp", ">", 0)
+  //Track unsent announcements
+  db.collection("announcements")
+    .where("sent", "==", false)
     .onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
-        store.commit("updateErrors", change.doc.data());
+        store.commit("updateQueue", {
+          operation: change.type,
+          data: change.doc.data()
+        });
       });
     });
 

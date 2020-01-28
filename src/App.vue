@@ -1,32 +1,7 @@
 <template>
   <div id="app">
     <transition name="slide">
-      <div
-        v-if="showMenu"
-        @mouseenter="menuOpen = true"
-        @mouseleave="menuOpen = false"
-        @click="menuOpen = !menuOpen"
-        :class="{open: menuOpen}"
-        class="menu"
-      >
-        <img src="./assets/logo.svg" class="logo" />
-        <router-link tag="div" to="/announcements" class="option">
-          <img src="./assets/announcement-icon.svg" alt="img" />
-          <h3 v-show="menuOpen" class="menu-desc">Announcements</h3>
-        </router-link>
-        <router-link tag="div" to="/conversations" class="option">
-          <img src="./assets/conversation-icon.svg" alt="img" />
-          <h3 class="menu-desc" v-show="menuOpen">Conversations</h3>
-        </router-link>
-        <router-link tag="div" to="/groups" class="option">
-          <img src="./assets/groups-icon.svg" alt="img" />
-          <h3 class="menu-desc" v-show="menuOpen">Groups</h3>
-        </router-link>
-        <router-link tag="div" to="/" class="option logout" @click="$store.commit('logOut')">
-          <img src="@/assets/back-icon.svg" alt="Log out" />
-          <h3 class="menu-desc" v-show="menuOpen" style="white-space: nowrap">Log out</h3>
-        </router-link>
-      </div>
+      <app-menu v-if="showMenu"></app-menu>
     </transition>
     <transition name="fade" mode="out-in">
       <router-view />
@@ -35,11 +10,14 @@
 </template>
 
 <script>
+import AppMenu from "@/components/Menu";
 export default {
+  components: {
+    AppMenu
+  },
   data() {
     return {
-      showMenu: false,
-      menuOpen: false
+      showMenu: false
     };
   },
   watch: {
@@ -51,14 +29,19 @@ export default {
 };
 </script>
 
-
 <style lang="scss">
 * {
   box-sizing: border-box;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  padding: 0;
 }
 
 #app {
@@ -68,6 +51,7 @@ body {
   --background: #ffffff;
   --card: #f9f9f9;
   --sidebar-width: 90px;
+  height: 100%;
 
   font-family: "Montserrat", Helvetica, Arial, sans-serif;
   font-weight: 500;
@@ -78,95 +62,54 @@ body {
   color: var(--dark);
 }
 
-/* Menu */
-.menu {
-  z-index: 100;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 90px;
-  height: 100%;
-  background: var(--dark);
-  padding: 0 10px;
-  transition: width 0.7s;
-  overflow: hidden;
-  .logo {
-    margin: 10px 0;
-  }
-  .option {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    padding: 10px;
-    margin: 5px 0;
-    transition: opacity 0.7s;
-
-    img {
-      width: 50px;
-      padding: 0 10px;
-    }
-
-    &:hover > .menu-desc {
-      color: var(--accent);
-    }
-
-    .menu-desc {
-      margin: 0;
-      color: white;
-      padding-left: 10px;
-      font-size: 1.5rem;
-      text-align: left;
-      transition: color 0.5s;
-    }
-
-    &.logout {
-      position: absolute;
-      bottom: 20px;
-      left: 10px;
-    }
-  }
-
-  &.open {
-    width: 300px;
-  }
-}
-
 .page {
   position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.with-sidebar {
   width: calc(100vw - var(--sidebar-width));
-  height: 100vh;
   margin-left: var(--sidebar-width);
 }
 
-.visual-box {
-  width: 100%;
-  height: 100%;
-  background: gray;
-  border: white 5px solid;
-}
-
-.button-primary {
-  margin-top: 30px;
-  background: var(--dark);
-  color: white;
-  font-size: 23px;
-}
-
-.button-secondary {
-  border: 2px solid var(--dark);
-  color: var(--dark);
-  background: white;
-  font-size: 20px;
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 button {
+  font-size: 17px;
   display: block;
-  margin: 15px auto;
+  padding: 10px 60px;
+  margin: 10px auto;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 500;
   cursor: pointer;
-  padding: 10px;
-  border-radius: 5px;
-  border: none;
+  border: 2px solid white;
+  transition: transform 0.5s;
+
+  &.primary {
+    font-size: 20px;
+    background: var(--dark);
+    color: white;
+  }
+  &.secondary {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+  }
+
+  &.shake {
+    animation: shake 0.5s;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 //ANIMATIONS
@@ -179,6 +122,7 @@ button {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
+  pointer-events: none;
 }
 
 .slide-enter,

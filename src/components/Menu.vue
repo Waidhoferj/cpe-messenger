@@ -1,27 +1,34 @@
 <template>
   <div
+    class="menu"
     @mouseenter="menuOpen = true"
     @mouseleave="menuOpen = false"
     @click="menuOpen = !menuOpen"
-    :class="{open: menuOpen}"
-    class="menu"
+    :class="{ open: menuOpen }"
   >
-    <img src="./assets/logo.svg" class="logo" />
+    <img src="@/assets/logo.svg" class="logo" />
     <router-link tag="div" to="/announcements" class="option">
-      <img src="./assets/announcement-icon.svg" alt="img" />
+      <img src="@/assets/announcement-icon.svg" alt="img" />
       <h3 v-show="menuOpen" class="menu-desc">Announcements</h3>
     </router-link>
     <router-link tag="div" to="/conversations" class="option">
-      <img src="./assets/conversation-icon.svg" alt="img" />
+      <img src="@/assets/conversation-icon.svg" alt="img" />
       <h3 class="menu-desc" v-show="menuOpen">Conversations</h3>
     </router-link>
     <router-link tag="div" to="/groups" class="option">
-      <img src="./assets/groups-icon.svg" alt="img" />
+      <img src="@/assets/groups-icon.svg" alt="img" />
       <h3 class="menu-desc" v-show="menuOpen">Groups</h3>
     </router-link>
-    <router-link tag="div" to="/" class="option logout" @click="$store.commit('logOut')">
+    <router-link
+      tag="div"
+      to="/"
+      class="option logout"
+      @click="$store.commit('logOut')"
+    >
       <img src="@/assets/back-icon.svg" alt="Log out" />
-      <h3 class="menu-desc" v-show="menuOpen" style="white-space: nowrap">Log out</h3>
+      <h3 class="menu-desc" v-show="menuOpen" style="white-space: nowrap">
+        Log out
+      </h3>
     </router-link>
   </div>
 </template>
@@ -29,21 +36,22 @@
 <script>
 export default {
   data() {
-      return {
-          menuOpen: false;
-      }
+    return {
+      menuOpen: false
+    };
   }
 };
 </script>
 
 <style lang="scss">
 .menu {
+  position: relative;
   z-index: 100;
   position: fixed;
   top: 0;
   left: 0;
   width: 90px;
-  height: 100%;
+  height: 100vh;
   background: var(--dark);
   padding: 0 10px;
   transition: width 0.7s;

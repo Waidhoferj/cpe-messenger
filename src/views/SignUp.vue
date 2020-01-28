@@ -1,45 +1,105 @@
 <template>
-  <div class="centered-page sign-up">
-    <div v-if="loading" class="loader"></div>
-    <div class="login-container">
-      <div class="icon" ref="icon">
-        <img src="@/assets/letter.svg" alt />
-      </div>
-      <div class="divider"></div>
-      <h1 class="title">CPE Messenger</h1>
-      <h3>{{signUpOpen ? 'Sign up' : "Login"}}</h3>
-      <form @submit.prevent="signUpOpen ? signUp() : logIn()" ref="form">
-        <input v-if="signUpOpen" type="text" placeholder="Name" v-model="name" />
-        <input type="text" class="username" v-model="username" placeholder="Email" />
-        <input type="password" class="password" v-model="password" placeholder="Password" />
-        <input v-if="signUpOpen" type="password" v-model="code" placeholder="Entry Code" />
-        <input type="submit" style="display: none" />
-      </form>
-      <button
-        class="button-primary"
-        @click="signUpOpen ? signUp() : logIn()"
-      >{{signUpOpen ? "Sign up" : "Login"}}</button>
-      <button
-        class="button-secondary"
-        @click="signUpOpen = !signUpOpen"
-      >{{signUpOpen ? 'Login' : "Sign up"}}</button>
+  <div class="page centered sign-up">
+    <loader v-if="loading"> </loader>
+    <div class="icon" ref="icon">
+      <img src="@/assets/letter.svg" alt />
     </div>
-    <transition name="sign-up-confirmation-popup" mode="out-in">
-      <div v-if="popupShown" class="sign-up-confirmation-popup">
-        <h3>Thanks for signing up!</h3>
-        <p>Your account should be ready in a couple of minutes</p>
-      </div>
-    </transition>
+    <div class="divider"></div>
+    <h1 class="title">CPE Messenger</h1>
+    <h3>Sign Up</h3>
+    <form @submit.prevent="signUp" ref="form">
+      <text-field
+        v-model.trim="name"
+        @blur="$v.name.$touch()"
+        label="Name"
+        :invalid="$v.name.$error"
+        errorMessage="required"
+      ></text-field>
+      <text-field
+        v-model.trim="email"
+        @blur="$v.email.$touch()"
+        label="Email"
+        :invalid="$v.email.$error"
+        errorMessage="enter a valid email"
+      ></text-field>
+      <text-field
+        v-model.trim="password"
+        @blur="$v.password.$touch()"
+        label="Password"
+        :invalid="$v.password.$error"
+        errorMessage="must have at least 7 characters"
+        type="password"
+      ></text-field>
+      <text-field
+        v-model.trim="code"
+        @blur="$v.code.$touch()"
+        label="Access Code"
+        :invalid="$v.code.$error"
+        errorMessage="required"
+        type="password"
+      ></text-field>
+      <input type="submit" style="display: none" />
+    </form>
+    <button class="primary" ref="submitButton" @click="signUp">
+      Sign Up
+    </button>
   </div>
 </template>
 
 <script>
+import Loader from "@/components/Loader";
+import TextField from "@/components/TextField";
+import { required, email, minLength } from "vuelidate/lib/validators";
+import { animateEl } from "@/modules/anim";
 export default {
+  components: {
+    Loader,
+    TextField
+  },
   data() {
-    return {};
+    return {
+      name: "",
+      email: "",
+      password: "",
+      code: "",
+      loading: false
+    };
+  },
+  methods: {
+    async signUp() {
+      this.$v.$touch();
+      if (this.$v.$error) return animateEl(this.$refs.submitButton, "shake");
+      debugger;
+      return;
+      this.loading = true;
+      let userInfo = {
+        displayName: this.name,
+        email: this.email,
+        password: this.password,
+        code: this.code
+      };
+      await this.$store.dispatch("signUpUser", userInfo);
+      this.loading = false;
+      this.$router.push("/");
+    }
+  },
+  validations: {
+    name: {
+      required
+    },
+    email: {
+      required,
+      email
+    },
+    password: {
+      required,
+      minLength: minLength(7)
+    },
+    code: {
+      required
+    }
   }
 };
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

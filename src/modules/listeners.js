@@ -35,6 +35,7 @@ export function trackAuthState(auth) {
   auth.onAuthStateChanged(function(user) {
     if (user) {
       store.commit("setUser", user);
+      router.push("announcements");
     } else {
       router.push("/");
     }

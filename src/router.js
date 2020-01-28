@@ -10,9 +10,15 @@ let router = new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: "/",
+      path: "/login",
       name: "login",
       component: Login
+    },
+    {
+      path: "/signup",
+      name: "signUp",
+      component: () =>
+        import(/* webpackChunkName: "signUp" */ "@/views/SignUp.vue")
     },
     {
       path: "/announcements",
@@ -37,10 +43,9 @@ let router = new Router({
         import(/* webpackChunkName: "groups" */ "./views/Groups.vue")
     },
     {
-      path: "/errors",
-      name: "errors",
-      component: () =>
-        import(/* webpackChunkName: "errors" */ "./views/Errors.vue")
+      path: "*",
+      name: "default",
+      component: Login
     }
   ]
 });
@@ -49,7 +54,8 @@ router.beforeEach(checkAuthentication);
 
 function checkAuthentication(to, from, next) {
   let unverified = store.state.user === null;
-  if (unverified && to.name !== "login" && to.name !== "signUp") next("/");
+  let safeLocations = ["login", "signUp"];
+  if (unverified && !safeLocations.includes(to.name)) next("/login");
   else next();
 }
 

@@ -1,13 +1,19 @@
 <template>
-  <div class="page groups-page" @dragenter="showGroupPopup = true" @dragover.prevent>
+  <div
+    class="page with-sidebar groups-page"
+    @dragenter="showGroupPopup = true"
+    @dragover.prevent
+  >
     <div class="groups-selector">
       <div
         v-for="(group, index) in groupNames"
         :key="group"
         class="group"
-        :class="{selected: index === selectedIndex}"
+        :class="{ selected: index === selectedIndex }"
         @click="selectGroup(index)"
-      >{{group | parseNameFrom}}</div>
+      >
+        {{ group | parseNameFrom }}
+      </div>
     </div>
     <div class="search">
       <img src="@/assets/search-icon.svg" class="search-icon" />
@@ -17,7 +23,7 @@
       <h3 class="option add-group" @click="showGroupPopup = true">Add Group</h3>
       <member-adder @numberInput="addMember"></member-adder>
     </div>
-    <p class="member-count">{{memberCount}} Members</p>
+    <p class="member-count">{{ memberCount }} Members</p>
     <div class="group-members">
       <div v-for="member in filteredMembers" :key="member" class="member">
         <img
@@ -26,10 +32,14 @@
           class="remove-icon"
           @click="removeMember(member)"
         />
-        <div class="member-tag">{{member | formatPhoneNumber}}</div>
+        <div class="member-tag">{{ member | formatPhoneNumber }}</div>
       </div>
     </div>
-    <group-popup class="group-popup" v-if="showGroupPopup" @close="closePopup"></group-popup>
+    <group-popup
+      class="group-popup"
+      v-if="showGroupPopup"
+      @close="closePopup"
+    ></group-popup>
   </div>
 </template>
 

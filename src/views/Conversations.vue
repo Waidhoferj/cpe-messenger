@@ -1,12 +1,14 @@
 <template>
-  <div class="page conversations-page">
+  <div class="page with-sidebar conversations-page">
     <div class="content">
       <div class="recipients">
         <ul class="recipient-list">
           <li
             class="recipient"
             v-for="conversation in conversations"
-            :class="{selected: conversation.from === selectedConversation.from}"
+            :class="{
+              selected: conversation.from === selectedConversation.from
+            }"
             @click="selectConversation(conversation)"
             :key="conversation.from"
             :contenteditable="conversation.from === selectedConversation.from"
@@ -15,7 +17,7 @@
             @keydown.enter="$event.preventDefault()"
           >
             <div v-if="conversation.unread" class="unread-icon"></div>
-            {{conversation.nickname || formatPhoneNumber(conversation.from)}}
+            {{ conversation.nickname || formatPhoneNumber(conversation.from) }}
           </li>
         </ul>
       </div>
@@ -32,9 +34,16 @@
               v-for="group in selectedMembership"
               :key="group"
               @click="removeMember(group)"
-            >{{group}}</p>
+            >
+              {{ group }}
+            </p>
           </div>
-          <img class="icon" src="@/assets/delete-icon.svg" alt="delete" @click="deleteConversation" />
+          <img
+            class="icon"
+            src="@/assets/delete-icon.svg"
+            alt="delete"
+            @click="deleteConversation"
+          />
         </div>
         <transition-group name="message" class="messages" tag="div">
           <message
@@ -177,9 +186,7 @@ export default {
       });
     },
     deleteConversation() {
-      this.$store.dispatch("deleteConversation", {
-        conversation: this.selectedConversation
-      });
+      this.$store.dispatch("deleteConversation", this.selectedConversation);
       if (this.conversations.length)
         this.selectedConversation = this.conversations[0];
     }
@@ -353,5 +360,3 @@ export default {
   }
 }
 </style>
-
-

@@ -2,26 +2,20 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 const axios = require("axios");
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
+
 import router from "./router";
 import { parseNameFrom } from "@/modules/parser";
-import firebaseConfig from "@/modules/fbConfig.js";
 import { attachListeners, trackAuthState } from "@/modules/listeners";
-
-firebase.initializeApp(firebaseConfig);
+import { db, auth } from "@/modules/fbConfig";
 Vue.use(Vuex);
 
-const db = firebase.firestore();
-const auth = firebase.auth();
 //AUTH
 trackAuthState(auth);
 
 export default new Vuex.Store({
   state: {
     user: null,
-    groupNames: ["CPE Club"],
+    groupNames: [],
     groups: [],
     conversations: [],
     errors: [],
@@ -58,6 +52,10 @@ export default new Vuex.Store({
     setGroupNames(state, groupNames) {
       state.groupNames = groupNames;
     },
+    /**
+     * Updates a conversation when a new text message is recieved
+     * @param update New message from a clients device in a text conversation
+     */
     updateConversations(state, update) {
       let initialUpdate = !state.conversations.length;
       const matchingConversation = conversation =>
@@ -91,20 +89,15 @@ export default new Vuex.Store({
         notification.close();
       }, 6000);
     },
-    updateErrors({ errors }, error) {
-      let date = new Date(error.timestamp).toLocaleDateString();
-      if (date in errors) errors[date].push(error);
-      else errors[date] = [error];
-    },
-    setConversations(state, conversations) {
-      state.conversations = conversations;
-    },
+    /**
+     * Clears all state and user data and signs user out of Firebase session.
+     */
     logOut(state) {
       state.user = null;
       state.groupNames = ["CPE Club"];
       state.conversations = [];
       state.errors = [];
-      auth.logOut();
+      auth.signOut();
     },
     /**
      * Handles any server changes that effect the announcement queue
@@ -134,6 +127,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    /**
+     * Logs in user and fetches active message groups for posting announcements.
+     * @param {Object} user The identifying email and password of the user.
+     */
     async logIn({ dispatch, commit }, user) {
       const userData = await auth.signInWithEmailAndPassword(
         user.email,
@@ -145,7 +142,10 @@ export default new Vuex.Store({
         ? commit("setGroupNames", groupsList)
         : console.error("no groups found");
     },
-
+    /**
+     * Uploads text message from CPE Messenger to the server, sending the message to the recipient's phone.
+     * @param {*} testMessage A message from the conversations page that includes the recipient's number and the textual content of the message.
+     */
     async sendResponse({ state }, { message, recipient }) {
       let pointers = await db
         .collection("conversations")
@@ -162,7 +162,10 @@ export default new Vuex.Store({
           messages: firebase.firestore.FieldValue.arrayUnion(message)
         });
     },
-
+    /**
+     * Updates the name of the conversation in the server, allowing the exchange to be referenced by a name instead of phone number.
+     * @param {*} conversation The conversation object to be updated (from the Conversations page)
+     */
     async updateNickname(context, { nickname, from: recipient }) {
       let pointers = await db
         .collection("conversations")
@@ -179,7 +182,10 @@ export default new Vuex.Store({
           nickname
         });
     },
-
+    /**
+     * Gets the document at the end of the provided path from the server.
+     * @param {*} path the slash separated path to the document in the server
+     */
     async getData(_, path) {
       const [group, item] = path.split("/");
       let pointer = await db
@@ -190,9 +196,12 @@ export default new Vuex.Store({
         return console.warn(`Could not find any data at ${path}`);
       return pointer.data();
     },
-
-    sendMessage(_, message) {
-      return db.collection("announcements").add(message);
+    //TODO
+    /**
+     * Queues mass text announcement to be sent by text provider
+     */
+    sendAnnouncement(_, announcement) {
+      return db.collection("announcements").add(announcement);
     },
     async getGroupListings({ commit }) {
       let pointers = await db.collection("textGroups").get();
@@ -214,12 +223,20 @@ export default new Vuex.Store({
         .doc(group.name)
         .set({ phoneNumbers: group.data });
     },
+    /**
+     * Validates new user's access code with a Firebase Function and creates user account.
+     * @param {*} userInfo name, email, password, and access code
+     */
     signUpUser(context, userInfo) {
       return axios.post(
         "https://us-central1-cpentrepreneurs-e2e22.cloudfunctions.net/signUpWithCode",
         userInfo
       );
     },
+    /**
+     * Removes subscriber from a messaging group.
+     * @param {Object} payload the member to remove and their corresponding group.
+     */
     removeGroupMember({ state }, { group, member }) {
       let removeIndex = state.groups[group].indexOf(member);
       if (removeIndex < 0) return;
@@ -231,6 +248,10 @@ export default new Vuex.Store({
           phoneNumbers: firebase.firestore.FieldValue.arrayRemove(member)
         });
     },
+    /**
+     * Add subscriber number to a mass text group.
+     * @param {*} payload the member to add and their corresponding group.
+     */
     addGroupMembers({ state, commit }, { group, members }) {
       commit("updateGroupMembers", { groupName: group, members });
       return db
@@ -240,17 +261,11 @@ export default new Vuex.Store({
           phoneNumbers: firebase.firestore.FieldValue.arrayUnion(...members)
         });
     },
-    notifyUser(text, sender) {
-      if (!window.Notification || Notification.permission !== "granted") return;
-      let notification = new Notification(text, { tag: sender });
-      notification.onclick = () => {
-        router.push("/conversations");
-      };
-      setTimeout(() => {
-        notification.close();
-      }, 4000);
-    },
-    async deleteConversation({ state }, { conversation }) {
+    /**
+     * Deletes conversation from the server.
+     * @param {*} conversation conversation within the Vuex store's inventory to be deleted.
+     */
+    async deleteConversation({ state }, conversation) {
       let removeIndex = state.conversations.indexOf(conversation);
       state.conversations.splice(removeIndex, 1);
 

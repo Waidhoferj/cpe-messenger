@@ -1,12 +1,16 @@
 <template>
-  <div class="page announcement-page">
+  <div class="page with-sidebar announcement-page">
     <div class="content">
       <announcer class="announcer"></announcer>
       <div class="queue">
         <h2 v-if="announcementQueue.length">Queue</h2>
         <h3 class="empty-message" v-else>No messages in queue</h3>
         <transition-group name="queue" mode="out-in" tag="div" class="messages">
-          <queued-message v-for="msg in announcementQueue" :announcement="msg" :key="msg.timestamp"></queued-message>
+          <queued-message
+            v-for="msg in announcementQueue"
+            :announcement="msg"
+            :key="msg.timestamp"
+          ></queued-message>
         </transition-group>
       </div>
     </div>

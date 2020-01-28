@@ -139,7 +139,7 @@ export default {
         sent: false
       };
       this.animateSend();
-      this.$store.dispatch("sendMessage", message);
+      this.$store.dispatch("sendAnnouncement", message);
     },
     animateSend() {
       let duration =

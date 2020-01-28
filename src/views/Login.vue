@@ -1,149 +1,93 @@
 <template>
-  <div class="login-page">
-    <div v-if="loading" class="loader"></div>
+  <div class="page centered login">
+    <loader v-if="loading"></loader>
     <div class="login-container">
       <div class="icon" ref="icon">
         <img src="@/assets/letter.svg" alt />
       </div>
       <div class="divider"></div>
       <h1 class="title">CPE Messenger</h1>
-      <h3>{{signUpOpen ? 'Sign up' : "Login"}}</h3>
-      <form @submit.prevent="signUpOpen ? signUp() : logIn()" ref="form">
-        <input v-if="signUpOpen" type="text" placeholder="Name" v-model="name" />
-        <input type="text" class="username" v-model="username" placeholder="Email" />
-        <input type="password" class="password" v-model="password" placeholder="Password" />
-        <input v-if="signUpOpen" type="password" v-model="code" placeholder="Entry Code" />
+      <h3>Login</h3>
+      <form @submit.prevent="logIn" ref="form">
+        <text-field
+          v-model.trim="email"
+          @blur="$v.email.$touch()"
+          label="Email"
+          :invalid="$v.email.$error"
+          errorMessage="enter a valid email address"
+        ></text-field>
+        <text-field
+          v-model.trim="password"
+          @blur="$v.password.$touch()"
+          type="password"
+          label="Password"
+          :invalid="$v.password.$error"
+        ></text-field>
         <input type="submit" style="display: none" />
       </form>
-      <button
-        class="button-primary"
-        @click="signUpOpen ? signUp() : logIn()"
-      >{{signUpOpen ? "Sign up" : "Login"}}</button>
-      <button
-        class="button-secondary"
-        @click="signUpOpen = !signUpOpen"
-      >{{signUpOpen ? 'Login' : "Sign up"}}</button>
+      <button class="primary" ref="submitButton" @click="logIn">Send It</button>
+      <button class="button-secondary" @click="$router.push('/signup')">
+        Sign Up
+      </button>
     </div>
-    <transition name="sign-up-confirmation-popup" mode="out-in">
-      <div v-if="popupShown" class="sign-up-confirmation-popup">
-        <h3>Thanks for signing up!</h3>
-        <p>Your account should be ready in a couple of minutes</p>
-      </div>
-    </transition>
   </div>
 </template>
 
 <script>
+import TextField from "@/components/TextField";
+import Loader from "@/components/Loader";
 import { delay, animateEl } from "@/modules/anim";
+import { required, email } from "vuelidate/lib/validators";
 export default {
+  components: {
+    TextField,
+    Loader
+  },
   data() {
     return {
-      name: "",
-      username: "",
+      email: "",
       password: "",
-      code: "",
-      signUpOpen: false,
-      popupShown: false,
       loading: false
     };
-  },
-  computed: {
-    inputsIncomplete() {
-      return !this.username || !this.password;
-    }
   },
   methods: {
     async logIn() {
       //TODO: add load state
-      let showError = () => {
-        let inputs = this.$refs.form.querySelectorAll("input");
-        inputs.forEach(el => animateEl(el, "shake"));
-        this.loading = false;
-      };
-      if (this.inputsIncomplete) {
-        showError();
-        return alert("Please fill out all fields.");
-      }
+      this.$v.$touch();
+      if (this.$v.$error) return animateEl(this.$refs.submitButton, "shake");
       this.loading = true;
       let payload = {
-        email: this.username,
+        email: this.email,
         password: this.password
       };
       try {
         await this.$store.dispatch("logIn", payload);
       } catch (err) {
-        showError();
-        return alert("Incorrect username or password");
+        return alert(err.message);
       }
 
       this.loading = false;
       this.$router.push("announcements");
+    }
+  },
+  validations: {
+    email: {
+      email,
+      required
     },
-    async signUp() {
-      if (!this.name || !this.username || !this.password || !this.code) {
-        alert("Please fill out all fields");
-        return;
-      }
-      if (this.password.length < 7) {
-        alert("Passwords must have at least 7 characters");
-        return;
-      }
-      let userInfo = {
-        displayName: this.name,
-        email: this.username,
-        password: this.password,
-        code: this.code
-      };
-      this.$store.dispatch("signUpUser", userInfo);
-      await delay(500);
-      this.displayPopup();
-      await delay(1000);
-      this.signUpOpen = false;
-    },
-    async displayPopup() {
-      this.popupShown = true;
-      await delay(3000);
-      this.popupShown = false;
+    password: {
+      required
     }
   }
 };
 </script>
 
 <style lang="scss">
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100vh;
-
-  .loader {
-    $border: 3px solid var(--dark);
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border-left: $border;
-    border-right: $border;
-    border-bottom: $border;
-    animation: spin 1s infinite;
-    transform-origin: center;
-    @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  }
-
+.login {
   .login-container {
     position: relative;
-    width: 490px;
+    width: 100%;
+    max-width: 490px;
     height: auto;
 
     .icon img {
@@ -158,51 +102,16 @@ export default {
     }
 
     .title {
-      font-size: 50px;
+      font-size: 40px;
       font-weight: 500;
     }
-    input {
-      background: whitesmoke;
-      border-radius: 10px;
-      color: var(--dark);
-      text-align: center;
-      margin: 10px auto;
-      font-family: inherit;
-      display: block;
-      border: none;
-      padding: 7px;
-      width: 100%;
-      font-size: 23px;
-      width: 370px;
 
-      &:-webkit-autofill {
-        font-size: 25px;
-      }
-
-      &.shake {
-        animation: shake 1s;
-      }
-    }
-  }
-
-  .sign-up-confirmation-popup {
-    position: absolute;
-    top: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: whitesmoke;
-    padding: 15px;
-    box-shadow: 0 0 31px 3px rgba(0, 0, 0, 0.219);
-
-    &.enter-active,
-    &.leave-active {
-      transition: all 1s;
+    .text-field {
+      margin: auto;
     }
 
-    &.enter,
-    &.leave-to {
-      opacity: 0;
-      transform: translateY(-200%);
+    button.primary {
+      margin-top: 30px;
     }
   }
 }

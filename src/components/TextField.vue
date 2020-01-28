@@ -1,5 +1,5 @@
 <template>
-  <div class="text-field" :class="{ invalid }">
+  <div class="text-field">
     <p class="label" :class="{ shown: showLabel }">{{ label }}</p>
     <input
       :value="value"
@@ -46,11 +46,8 @@ export default {
   border-radius: 7px;
   background: transparent;
 
-  &.invalid {
-    background: #f3080869;
-  }
-
   .label {
+    margin: 0;
     margin-left: 5px;
     font-size: 12px;
     font-weight: 700;
@@ -71,6 +68,7 @@ export default {
     }
 
     &.error {
+      color: #f30808;
       font-weight: 500;
       transform: translateY(-100%);
       clip-path: inset(100% 0 0 0);
@@ -82,7 +80,7 @@ export default {
     font-size: inherit;
     font-weight: 500;
     border: none;
-    background: white;
+    background: whitesmoke;
     border-radius: 7px;
     margin: 0;
     padding: 7px;

@@ -105,7 +105,6 @@ export default new Vuex.Store({
      * @param data payload property which holds the changed document.
      */
     updateQueue(state, { operation, data }) {
-      console.log("update", operation, data);
       switch (operation) {
         case "added":
           state.announcementQueue.push(data);

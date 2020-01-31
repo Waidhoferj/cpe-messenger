@@ -28,6 +28,8 @@ export function attachListeners(db) {
       }
     });
   }
+
+  store.state.listenersActive = true;
 }
 
 export function trackAuthState(auth) {
@@ -35,7 +37,9 @@ export function trackAuthState(auth) {
   auth.onAuthStateChanged(function(user) {
     if (user) {
       store.commit("setUser", user);
-      router.push("announcements");
+      store.dispatch("fetchCoreData").then(() => {
+        router.push("/announcements");
+      });
     } else {
       router.push("/");
     }

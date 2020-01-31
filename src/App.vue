@@ -22,7 +22,7 @@ export default {
   },
   watch: {
     $route(to, from) {
-      let screensWithoutSidebar = ["login", "signUp"];
+      let screensWithoutSidebar = ["login", "signUp", "default"];
       this.showMenu = !screensWithoutSidebar.includes(to.name);
     }
   }

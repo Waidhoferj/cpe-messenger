@@ -18,8 +18,8 @@ export default new Vuex.Store({
     groupNames: [],
     groups: [],
     conversations: [],
-    errors: [],
-    announcementQueue: []
+    announcementQueue: [],
+    listenersActive: false
   },
   mutations: {
     setGroups(state, groups) {
@@ -97,7 +97,7 @@ export default new Vuex.Store({
       state.groupNames = ["CPE Club"];
       state.conversations = [];
       state.errors = [];
-      auth.signOut();
+      return auth.signOut();
     },
     /**
      * Handles any server changes that effect the announcement queue
@@ -131,13 +131,25 @@ export default new Vuex.Store({
      * Logs in user and fetches active message groups for posting announcements.
      * @param {Object} user The identifying email and password of the user.
      */
-    async logIn({ dispatch, commit }, user) {
+    async logIn({ dispatch }, user) {
       const userData = await auth.signInWithEmailAndPassword(
         user.email,
         user.password
       );
-      attachListeners(db, auth);
-      const { groupsList } = await dispatch("getData", `textGroups/GroupsInfo`);
+      await dispatch("fetchCoreData");
+    },
+    /**
+     * Fetches necessary initial data from server to populate first page of app. Will set
+     */
+    async fetchCoreData({ state, dispatch, commit }) {
+      if (!state.listenersActive) attachListeners(db, auth);
+      let res = {};
+      try {
+        res = await dispatch("getData", `textGroups/GroupsInfo`);
+      } catch (err) {
+        console.err(err.message);
+      }
+      let { groupsList } = res;
       groupsList
         ? commit("setGroupNames", groupsList)
         : console.error("no groups found");

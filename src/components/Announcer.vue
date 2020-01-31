@@ -334,6 +334,17 @@ export default {
   }
 }
 
+//RESPONSIVE DESIGN
+//-----------------------------------------
+@media screen and (max-width: 900px) {
+  .announcer-component {
+    max-width: 90%;
+    max-height: 750px;
+    margin: 50px auto;
+    margin-top: 65px;
+  }
+}
+
 //ANIMATIONS
 //-----------------------------------------
 

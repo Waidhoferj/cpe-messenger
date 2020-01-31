@@ -112,6 +112,14 @@ button {
   }
 }
 
+//RESPONSIVE DESIGN
+//-----------------------------
+@media screen and (max-width: 500px) {
+  #app {
+    --sidebar-width: 0px;
+  }
+}
+
 //ANIMATIONS
 //-----------------------------
 .fade-enter,

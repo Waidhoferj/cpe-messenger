@@ -116,6 +116,7 @@ export default {
 }
 @media screen and (max-width: 500px) {
   .menu {
+    width: 0;
     .hamburger-icon {
       display: block;
     }

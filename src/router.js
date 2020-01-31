@@ -1,5 +1,5 @@
 import Vue from "vue";
-import store from "@/store";
+import { auth } from "@/modules/fbConfig";
 import Router from "vue-router";
 import Login from "./views/Login.vue";
 
@@ -53,9 +53,9 @@ let router = new Router({
 router.beforeEach(checkAuthentication);
 
 function checkAuthentication(to, from, next) {
-  let unverified = store.state.user === null;
+  let verified = auth.currentUser;
   let safeLocations = ["login", "signUp"];
-  if (unverified && !safeLocations.includes(to.name)) next("/login");
+  if (!verified && !safeLocations.includes(to.name)) next("/login");
   else next();
 }
 

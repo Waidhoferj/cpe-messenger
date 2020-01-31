@@ -1,6 +1,6 @@
 <template>
   <div class="page centered sign-up">
-    <loader v-if="loading"> </loader>
+    <loader v-if="loading"></loader>
     <div class="icon" ref="icon">
       <img src="@/assets/letter.svg" alt />
     </div>
@@ -40,9 +40,7 @@
       ></text-field>
       <input type="submit" style="display: none" />
     </form>
-    <button class="primary" ref="submitButton" @click="signUp">
-      Sign Up
-    </button>
+    <button class="primary" ref="submitButton" @click="signUp">Sign Up</button>
   </div>
 </template>
 
@@ -69,7 +67,6 @@ export default {
     async signUp() {
       this.$v.$touch();
       if (this.$v.$error) return animateEl(this.$refs.submitButton, "shake");
-      debugger;
       return;
       this.loading = true;
       let userInfo = {

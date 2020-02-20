@@ -207,7 +207,7 @@ export default {
 
   .group-members {
     display: grid;
-    grid-template-columns: repeat(5, min-content);
+    grid-template-columns: repeat(auto-fill, 200px);
     justify-content: center;
     margin: auto;
     margin-top: 20px;

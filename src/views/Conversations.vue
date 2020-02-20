@@ -79,7 +79,7 @@ export default {
       message: "",
       selectedMembership: [],
       showMembership: false,
-      revealBackPanel: true
+      revealBackPanel: false
     };
   },
   computed: {

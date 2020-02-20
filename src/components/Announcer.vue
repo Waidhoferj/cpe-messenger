@@ -178,6 +178,7 @@ export default {
 <style lang="scss">
 .announcer-component {
   --send-duration: 2s;
+  --header-height: 147px;
 
   box-sizing: border-box;
   position: relative;
@@ -193,21 +194,24 @@ export default {
   &.anim-send {
     animation: anim-send var(--send-duration) ease-in-out;
   }
-  .title {
-    font-size: 32px;
-    color: white;
-  }
+  header {
+    height: var(--header-height);
+    .title {
+      font-size: 32px;
+      color: white;
+    }
 
-  .selected-group {
-    cursor: pointer;
-    font-size: 25px;
-    color: white;
+    .selected-group {
+      cursor: pointer;
+      font-size: 25px;
+      color: white;
+    }
   }
 
   section {
     position: relative;
     width: 100%;
-    height: 100%;
+    height: calc(100% - var(--header-height));
 
     .editor {
       position: relative;
@@ -230,6 +234,8 @@ export default {
         resize: none;
       }
       .task-bar {
+        position: absolute;
+        bottom: 0;
         display: flex;
         justify-content: space-between;
         padding: 10px;

@@ -7,11 +7,11 @@
             class="recipient"
             v-for="conversation in conversations"
             :class="{
-              selected: conversation.from === selectedConversation.from
+              selected: convoSelectable(conversation)
             }"
             @click="selectConversation(conversation)"
             :key="conversation.from"
-            :contenteditable="conversation.from === selectedConversation.from"
+            :contenteditable="convoSelectable(conversation)"
             @blur="updateNickname($event, conversation)"
             @keyup.enter="enterNickname"
             @keydown.enter="$event.preventDefault()"
@@ -51,7 +51,7 @@
           ></message>
         </transition-group>
       </div>
-      <div class="response-bar">
+      <div class="response-bar" :class="{slide: revealBackPanel}">
         <div
           class="message-input"
           contenteditable="true"
@@ -183,6 +183,12 @@ export default {
       this.$store.dispatch("deleteConversation", this.selectedConversation);
       if (this.conversations.length)
         this.selectedConversation = this.conversations[0];
+    },
+    convoSelectable(conversation) {
+      return (
+        conversation.from === this.selectedConversation.from &&
+        window.innerWidth > 700
+      );
     }
   },
   mounted() {

@@ -21,8 +21,12 @@
           </li>
         </ul>
       </div>
-      <div class="conversation" ref="conversation">
+      <div class="conversation" ref="conversation" :class="{slide: revealBackPanel}">
         <div class="menu-bar">
+          <h3
+            class="menu-bar-title"
+            @click="revealBackPanel = true"
+          >{{ selectedConversation.nickname || formatPhoneNumber(selectedConversation.from) }}</h3>
           <img
             class="icon"
             src="@/assets/exit-icon.svg"
@@ -34,16 +38,9 @@
               v-for="group in selectedMembership"
               :key="group"
               @click="removeMember(group)"
-            >
-              {{ group }}
-            </p>
+            >{{ group }}</p>
           </div>
-          <img
-            class="icon"
-            src="@/assets/delete-icon.svg"
-            alt="delete"
-            @click="deleteConversation"
-          />
+          <img class="icon" src="@/assets/delete-icon.svg" alt="delete" @click="deleteConversation" />
         </div>
         <transition-group name="message" class="messages" tag="div">
           <message
@@ -60,15 +57,10 @@
           contenteditable="true"
           @input="message = $event.target.innerText"
           @keyup.enter="sendMessage"
+          @keydown.enter="$event.preventDefault()"
           ref="messageInput"
         ></div>
-        <img
-          v-show="message"
-          class="send-icon"
-          src="@/assets/send-icon.svg"
-          alt="send"
-          @click="sendMessage"
-        />
+        <button class="send-button" @click="sendMessage">Send</button>
       </div>
     </div>
   </div>
@@ -86,7 +78,8 @@ export default {
       selectedConversation: {},
       message: "",
       selectedMembership: [],
-      showMembership: false
+      showMembership: false,
+      revealBackPanel: true
     };
   },
   computed: {
@@ -110,6 +103,7 @@ export default {
       this.selectedConversation = conversation;
       this.showMembership = false;
       conversation.unread = false;
+      this.revealBackPanel = false;
     },
     sendMessage() {
       const message = {
@@ -208,7 +202,7 @@ export default {
   align-items: center;
   .content {
     display: grid;
-    grid-template-rows: 80vh min-content;
+    grid-template-rows: 80vh 75px;
     grid-template-columns: 25vw 55vw;
     grid-template-areas:
       "recipients conversation"
@@ -222,6 +216,8 @@ export default {
       height: 100%;
       grid-area: recipients;
       background: var(--card);
+      max-height: 100%;
+      overflow-y: scroll;
 
       .recipient-list {
         margin: 0;
@@ -262,9 +258,17 @@ export default {
       display: flex;
       justify-content: flex-end;
       padding: 10px;
-      height: 55px;
       background: white;
       box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.034);
+
+      .menu-bar-title {
+        display: none;
+        font-size: 20px;
+        margin: 0;
+        margin: auto;
+        margin-left: 60px;
+        cursor: pointer;
+      }
       .icon {
         width: 40px;
         cursor: pointer;
@@ -315,32 +319,32 @@ export default {
     }
 
     .response-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
       width: 100%;
-      height: 100%;
+      height: min-content;
       padding: 10px 0;
+      border-top: 2px solid whitesmoke;
+      background: var(--base);
       grid-area: menu;
 
       .message-input {
-        color: var(--accent);
-        border-radius: 15px;
-        border: 2px solid var(--accent);
+        text-align: left;
+        color: var(--base);
         padding: 15px;
-        display: inline-block;
-        min-width: 70%;
-        max-width: 100%;
-        transition: min-width 0.7s;
-
-        &:focus {
-          min-width: 53px;
-        }
+        display: block;
+        width: 90%;
+        background: var(--base);
       }
 
-      .send-icon {
-        margin: auto;
-        display: block;
-        width: 40px;
-        margin-top: 15px;
-        cursor: pointer;
+      .send-button {
+        margin: 0 10px;
+        padding: 10px;
+        color: var(--accent);
+        background: transparent;
+        border-radius: 0;
+        border-color: transparent;
       }
     }
 
@@ -350,6 +354,7 @@ export default {
       width: 100%;
       height: 100%;
       grid-area: conversation;
+      background: white;
     }
   }
 
@@ -357,6 +362,41 @@ export default {
     width: 40px;
     height: 40px;
     background: red;
+  }
+}
+
+.slide {
+  transform: translateY(120%);
+}
+
+//MEDIA QUERIES
+@media screen and (max-width: 700px) {
+  //TODO: make the conversations tab fill the whole screen
+  .conversations-page {
+    .content {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+
+      .recipients {
+        position: fixed;
+      }
+
+      .conversation {
+        height: calc(100vh - 75px);
+        transition: transform 0.7s;
+        .menu-bar {
+          width: calc(100% - var(--sidebar-width));
+          position: fixed;
+          top: 0;
+
+          .menu-bar-title {
+            display: block;
+          }
+        }
+      }
+    }
   }
 }
 </style>

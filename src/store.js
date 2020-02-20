@@ -7,6 +7,7 @@ import router from "./router";
 import { parseNameFrom } from "@/modules/parser";
 import { attachListeners, trackAuthState } from "@/modules/listeners";
 import { db, auth } from "@/modules/fbConfig";
+import firebase from "firebase/app";
 Vue.use(Vuex);
 
 //AUTH

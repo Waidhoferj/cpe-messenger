@@ -22,11 +22,14 @@ export function attachListeners(db) {
     });
 
   if (window.Notification && Notification.permission !== "granted") {
-    Notification.requestPermission().then(status => {
+    let setStatus = status => {
       if (Notification.permission !== status) {
         Notification.permission = status;
       }
-    });
+    };
+    if (checkNotificationPromise())
+      Notification.requestPermission().then(setStatus);
+    else Notification.requestPermission(setStatus);
   }
 
   store.state.listenersActive = true;
@@ -44,4 +47,14 @@ export function trackAuthState(auth) {
       router.push("/");
     }
   });
+}
+
+function checkNotificationPromise() {
+  try {
+    Notification.requestPermission().then();
+  } catch (e) {
+    return false;
+  }
+
+  return true;
 }
